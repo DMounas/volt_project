@@ -757,3 +757,177 @@ Accept: application/json
   "provenance": "SYNTHETIC"
 }
 ```
+
+---
+
+## 13. Customer Classification Segments (`GET /api/v1/customers/segments`)
+
+Returns all customer classification segments with behavioral parameters and provenance.
+
+### Request
+```http
+GET /api/v1/customers/segments HTTP/1.1
+Host: localhost:8000
+Accept: application/json
+```
+
+### Response (`200 OK`)
+```json
+{
+  "total_segments": 5,
+  "segments": [
+    {
+      "segment": "EMERGENCY",
+      "priority_rank": 1,
+      "share_assumed": 0.03,
+      "opt_in_rate_assumed": 0.0,
+      "max_wait_minutes": 0.0,
+      "max_deferral_minutes": 0.0,
+      "flexible_fraction": 0.0,
+      "is_shiftable": false,
+      "description": "Ambulances, emergency response, law enforcement; strictly non-deferrable",
+      "provenance": "ASSUMED"
+    },
+    {
+      "segment": "PRIORITY_FLEET",
+      "priority_rank": 2,
+      "share_assumed": 0.12,
+      "opt_in_rate_assumed": 0.0,
+      "max_wait_minutes": 15.0,
+      "max_deferral_minutes": 0.0,
+      "flexible_fraction": 0.0,
+      "is_shiftable": false,
+      "description": "Critical public transit & government service fleets; protected under 5% reserve",
+      "provenance": "ASSUMED"
+    },
+    {
+      "segment": "RIDE_HAILING",
+      "priority_rank": 3,
+      "share_assumed": 0.35,
+      "opt_in_rate_assumed": 0.35,
+      "max_wait_minutes": 30.0,
+      "max_deferral_minutes": 60.0,
+      "flexible_fraction": 0.40,
+      "is_shiftable": true,
+      "description": "Commercial 4W/3W ride-hailing drivers; moderate flexibility during lulls",
+      "provenance": "ASSUMED"
+    },
+    {
+      "segment": "LOGISTICS_FLEET",
+      "priority_rank": 4,
+      "share_assumed": 0.30,
+      "opt_in_rate_assumed": 0.60,
+      "max_wait_minutes": 90.0,
+      "max_deferral_minutes": 180.0,
+      "flexible_fraction": 0.70,
+      "is_shiftable": true,
+      "description": "Commercial 2W/3W last-mile delivery and freight fleets; high scheduling slack",
+      "provenance": "ASSUMED"
+    },
+    {
+      "segment": "PRIVATE_EV",
+      "priority_rank": 5,
+      "share_assumed": 0.20,
+      "opt_in_rate_assumed": 0.25,
+      "max_wait_minutes": 45.0,
+      "max_deferral_minutes": 90.0,
+      "flexible_fraction": 0.50,
+      "is_shiftable": true,
+      "description": "Individual private EV commuters; voluntary price-responsive charging",
+      "provenance": "ASSUMED"
+    }
+  ],
+  "provenance": "ASSUMED",
+  "disclaimer": "Customer segments and opt-in parameters are synthetic model assumptions for engineering demonstration."
+}
+```
+
+---
+
+## 14. Customer Requests & Reconciliation Summary (`GET /api/v1/customers/requests/summary`)
+
+### Request
+```http
+GET /api/v1/customers/requests/summary HTTP/1.1
+Host: localhost:8000
+Accept: application/json
+```
+
+### Response (`200 OK`)
+```json
+{
+  "total_requests": 59087,
+  "total_fast_charge_requests": 34182,
+  "total_battery_swap_requests": 24905,
+  "total_fast_charge_mwh": 1025.46,
+  "total_swap_mwh": 56.036,
+  "total_swap_packs": 24905,
+  "reconciliation_passed": true,
+  "cluster_summaries": [
+    {
+      "cluster_id": "delhi_ncr",
+      "fast_charge_requests": 6836,
+      "swap_requests": 4981,
+      "total_fast_charge_kwh": 205092.1,
+      "total_swap_packs": 4981,
+      "reconciliation_pass_rate_pct": 100.0
+    }
+  ],
+  "provenance": "SYNTHETIC",
+  "disclaimer": "Generated from hourly aggregate synthetic load using SyntheticRequestDisaggregator."
+}
+```
+
+---
+
+## 15. Dynamic Tariff Recommendation (`POST /api/v1/tariffs/recommend`)
+
+Enforces the case study's $[0.80x, 1.20x]$ previous day average tariff guardrail.
+
+### Request
+```http
+POST /api/v1/tariffs/recommend HTTP/1.1
+Host: localhost:8000
+Content-Type: application/json
+
+{
+  "cluster_id": "delhi_ncr",
+  "service_type": "FAST_CHARGE",
+  "timestamp": "2025-06-15T18:00:00+05:30",
+  "previous_day_average_tariff_inr_per_kwh": 10.00,
+  "forecast_procurement_cost_inr_per_kwh": 15.00,
+  "forecast_demand_mw": 230.0,
+  "available_capacity_mw": 240.0
+}
+```
+
+### Response (`200 OK`)
+```json
+{
+  "cluster_id": "delhi_ncr",
+  "service_type": "FAST_CHARGE",
+  "timestamp": "2025-06-15T18:00:00+05:30",
+  "previous_day_average_tariff_inr_per_kwh": 10.0,
+  "tariff_min_inr_per_kwh": 8.0,
+  "tariff_max_inr_per_kwh": 12.0,
+  "raw_tariff_inr_per_kwh": 16.4,
+  "final_tariff_inr_per_kwh": 12.0,
+  "clamped": true,
+  "clamping_direction": "UPPER_BOUND",
+  "pricing_factors": {
+    "previous_day_average": 10.0,
+    "tariff_min": 8.0,
+    "tariff_max": 12.0,
+    "forecast_procurement_cost": 15.0,
+    "utilization_ratio": 0.958,
+    "raw_tariff": 16.4
+  },
+  "adjustment_reasons": [
+    "Procurement cost forecast (15.00 INR/kWh) is higher than benchmark (5.20), adjusting raw tariff by +4.90 INR/kWh.",
+    "High forecast cluster utilization (95.8%), adding congestion adder of +1.50 INR/kWh.",
+    "Raw tariff (16.40 INR/kWh) exceeded regulatory ceiling (1.20x = 12.00 INR/kWh); clamped to ceiling."
+  ],
+  "provenance": "ASSUMED_POLICY"
+}
+```
+```

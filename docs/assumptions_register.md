@@ -166,3 +166,35 @@ This document lists every unknown parameter, the engineering rationale for its b
   * Test: 2025-01-01 to 2025-12-31 (1 year, untouched test period)
 - **Operational NWP Weather Forecast Error Proxy (`ASSUMED`):** Day-ahead weather forecast uncertainty modeled as zero-mean Gaussian perturbation whose variance scales with lead time $h \in [1, 24]$.
 - **Quantile Post-Processing (`ASSUMED` guardrails):** Monotonic sorting enforcing $P10 \le P50 \le P90$; physical clipping to $\ge 0.0$; solar nighttime cutoff strictly set to $0.0\text{ MWh}$ for hours 19:00 to 05:00 IST.
+
+---
+
+### 2.11 Phase 4 Customer Flexibility, Acceptance & Dynamic Tariffs
+
+#### Customer Segments & Behavioral Opt-In Parameters (`ASSUMED`)
+| Segment | Base Share | Sensitivity (Low/Base/High) | Priority Rank | Opt-In Rate | Max Wait (min) | Max Deferral (min) | Shiftable? | Rationale |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :--- |
+| `EMERGENCY` | 3.0% | 2.0% / 3.0% / 5.0% | 1 | 0.0% | 0 | 0 | **No** | Ambulances, law enforcement; non-deferrable |
+| `PRIORITY_FLEET` | 12.0% | 8.0% / 12.0% / 15.0% | 2 | 0.0% | 15 | 0 | **No** | Critical transit fleets; protected by 5% reserve |
+| `RIDE_HAILING` | 35.0% | 30.0% / 35.0% / 40.0% | 3 | 35.0% | 30 | 60 | **Yes** | Commercial 4W/3W drivers during lull periods |
+| `LOGISTICS_FLEET`| 30.0% | 25.0% / 30.0% / 40.0% | 4 | 60.0% | 90 | 180 | **Yes** | Last-mile and depot logistics with scheduling slack |
+| `PRIVATE_EV` | 20.0% | 15.0% / 20.0% / 25.0% | 5 | 25.0% | 45 | 90 | **Yes** | Commuters responding to price incentives |
+
+#### Logistic Acceptance Model (`ASSUMED`)
+- Formula: $p_{\text{accept}} = \text{clip}\left(\sigma(\beta_0 + \beta_1 \cdot \text{incentive} + \beta_2 \cdot \text{notice} + \beta_3 \cdot \text{slack} + \gamma_{\text{segment}}), 0.0, 1.0\right)$
+- Intercept $\beta_0$: Base -1.50 (Sensitivity: Low -2.00, High -1.00)
+- Price Elasticity $\beta_1$: Base 0.80 (Sensitivity: Low 0.40, High 1.50) per INR/kWh
+- Advance Notice $\beta_2$: Base 0.30 (Sensitivity: Low 0.10, High 0.50) per advance hour
+- Schedule Slack $\beta_3$: Base 0.40 (Sensitivity: Low 0.20, High 0.60) per buffer hour
+- Segment Utility Effects $\gamma$: `EMERGENCY`: -999.0, `PRIORITY_FLEET`: -999.0, `RIDE_HAILING`: 0.00, `LOGISTICS_FLEET`: +0.50, `PRIVATE_EV`: -0.20
+
+#### Dynamic Tariff Policy Bounding Rule (`REGULATORY_GUARDRAIL_ASSUMED`)
+- Floor Multiplier: $0.80 \times \bar{T}_{\text{prev}}$ (20% discount ceiling)
+- Ceiling Multiplier: $1.20 \times \bar{T}_{\text{prev}}$ (20% premium ceiling)
+- Final Tariff: $\text{final\_tariff} = \text{clip}(\text{raw\_tariff}, 0.80 \times \bar{T}_{\text{prev}}, 1.20 \times \bar{T}_{\text{prev}})$
+- Baseline Reference Tariff: ₹11.50/kWh (Fast Charging), ₹85.00/swap (Battery Swap)
+
+#### Decoupled Financial Accounting Invariant (`ASSUMED_POLICY`)
+- Customer retail tariff revenue ($E_{\text{delivered}} \times T_{\text{final}}$) and voluntary flexibility incentive expenditures ($E_{\text{deferred}} \times I_{\text{rate}}$) are distinct accounting lines.
+- Incentives are never subtracted from retail tariffs into a single blended rate.
+- If operational wholesale cost inputs are missing, incentive offers return `NOT_EVALUABLE` rather than fabricating positive net value.

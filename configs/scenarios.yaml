@@ -101,3 +101,143 @@ scenarios:
     probability_weight: 0.03
     seed: 606
     status: "configured"
+
+# ==========================================================
+# Phase 4: Customer Flexibility & Tariff Disturbance Scenarios
+# ==========================================================
+flexibility_scenarios:
+  HIGH_EMERGENCY_SHARE:
+    name: "High Emergency / Priority Demand Surge"
+    description: "Emergency fleet surge increases non-deferrable emergency demand to 15% and priority fleet to 25%, drastically reducing eligible flexible load."
+    emergency_share_multiplier: 5.0
+    priority_share_multiplier: 2.08
+    opt_in_multiplier: 1.0
+    price_sensitivity_multiplier: 1.0
+    deadline_slack_multiplier: 1.0
+    demand_multiplier: 1.20
+    renewable_multiplier: 1.0
+    iex_price_multiplier: 1.0
+    seed: 701
+    status: "configured"
+    provenance: "SYNTHETIC"
+
+  HIGH_OPT_IN:
+    name: "High Customer Flexibility Opt-In"
+    description: "Aggressive fleet engagement campaigns increase ride-hailing opt-in to 60%, logistics to 85%, and private EV to 50%."
+    opt_in_override:
+      RIDE_HAILING: 0.60
+      LOGISTICS_FLEET: 0.85
+      PRIVATE_EV: 0.50
+    emergency_share_multiplier: 1.0
+    price_sensitivity_multiplier: 1.0
+    deadline_slack_multiplier: 1.0
+    demand_multiplier: 1.0
+    renewable_multiplier: 1.0
+    iex_price_multiplier: 1.0
+    seed: 702
+    status: "configured"
+    provenance: "SYNTHETIC"
+
+  LOW_OPT_IN:
+    name: "Low Customer Flexibility Opt-In"
+    description: "Customer reluctance or early-stage program where opt-in rates drop to 15% for ride-hailing and 25% for logistics."
+    opt_in_override:
+      RIDE_HAILING: 0.15
+      LOGISTICS_FLEET: 0.25
+      PRIVATE_EV: 0.10
+    emergency_share_multiplier: 1.0
+    price_sensitivity_multiplier: 1.0
+    deadline_slack_multiplier: 1.0
+    demand_multiplier: 1.0
+    renewable_multiplier: 1.0
+    iex_price_multiplier: 1.0
+    seed: 703
+    status: "configured"
+    provenance: "SYNTHETIC"
+
+  HIGH_PRICE_SENSITIVITY:
+    name: "High Price Sensitivity"
+    description: "Fleet drivers display high elasticity (beta_1 = 1.6), responding vigorously even to modest financial incentives."
+    price_sensitivity_beta_1: 1.60
+    opt_in_multiplier: 1.0
+    emergency_share_multiplier: 1.0
+    deadline_slack_multiplier: 1.0
+    demand_multiplier: 1.0
+    renewable_multiplier: 1.0
+    iex_price_multiplier: 1.0
+    seed: 704
+    status: "configured"
+    provenance: "SYNTHETIC"
+
+  LOW_PRICE_SENSITIVITY:
+    name: "Low Price Sensitivity"
+    description: "Inflexible driver behavior (beta_1 = 0.3), requiring substantially higher incentives to achieve demand shifting."
+    price_sensitivity_beta_1: 0.30
+    opt_in_multiplier: 1.0
+    emergency_share_multiplier: 1.0
+    deadline_slack_multiplier: 1.0
+    demand_multiplier: 1.0
+    renewable_multiplier: 1.0
+    iex_price_multiplier: 1.0
+    seed: 705
+    status: "configured"
+    provenance: "SYNTHETIC"
+
+  TIGHT_DEADLINES:
+    name: "Tight Customer Deadlines"
+    description: "Urgent operating schedules compress customer max deferral windows by 50%, restricting feasible shifting envelopes."
+    deadline_slack_multiplier: 0.50
+    opt_in_multiplier: 1.0
+    price_sensitivity_multiplier: 1.0
+    emergency_share_multiplier: 1.0
+    demand_multiplier: 1.0
+    renewable_multiplier: 1.0
+    iex_price_multiplier: 1.0
+    seed: 706
+    status: "configured"
+    provenance: "SYNTHETIC"
+
+  FLEXIBLE_LOGISTICS_FLEET:
+    name: "Flexible Logistics Fleet with Long Windows"
+    description: "Overnight delivery logistics fleets with large 4-hour deferral slack and 90% opt-in participating in night valley filling."
+    logistics_deferral_hours: 4.0
+    opt_in_override:
+      LOGISTICS_FLEET: 0.90
+    emergency_share_multiplier: 1.0
+    price_sensitivity_multiplier: 1.2
+    deadline_slack_multiplier: 2.0
+    demand_multiplier: 1.0
+    renewable_multiplier: 1.0
+    iex_price_multiplier: 1.0
+    seed: 707
+    status: "configured"
+    provenance: "SYNTHETIC"
+
+  CLUSTER_CONGESTION_ASYMMETRY:
+    name: "Cluster Congestion Asymmetry (Delhi/Mumbai Congested)"
+    description: "Heavy congestion in Delhi NCR and Mumbai MMR with grid queue pressure, while Bengaluru and Hyderabad experience low load. Strictly no inter-cluster transfer."
+    cluster_congestion_multiplier:
+      delhi_ncr: 1.40
+      mumbai_mmr: 1.35
+      bengaluru: 0.85
+      hyderabad: 0.90
+      chennai: 1.00
+    demand_multiplier: 1.15
+    renewable_multiplier: 0.95
+    iex_price_multiplier: 1.20
+    seed: 708
+    status: "configured"
+    provenance: "SYNTHETIC"
+
+  COMBINED_HIGH_DEMAND_IEX:
+    name: "Combined Peak Demand and High IEX Clearing Price"
+    description: "Summer evening coincident peak: fast-charging demand surges +30% while IEX spot price clears at peak regulatory ceiling (2.2x base)."
+    demand_multiplier: 1.30
+    iex_price_multiplier: 2.20
+    renewable_multiplier: 0.80
+    emergency_share_multiplier: 1.0
+    price_sensitivity_multiplier: 1.2
+    deadline_slack_multiplier: 0.9
+    seed: 709
+    status: "configured"
+    provenance: "SYNTHETIC"

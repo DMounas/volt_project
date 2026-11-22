@@ -9,6 +9,7 @@ import {
   fetchScenarios,
 } from './api';
 import { ComingSoonTab } from './components/ComingSoonTab';
+import { CustomerFlexibilityTab } from './components/CustomerFlexibilityTab';
 import { ForecastsTab } from './components/ForecastsTab';
 import { Header } from './components/Header';
 import { Navigation } from './components/Navigation';
@@ -98,6 +99,8 @@ export const App: React.FC = () => {
             calibration={calibration}
             iexDiag={iexDiag}
           />
+        ) : activeTab === 'flexibility' ? (
+          <CustomerFlexibilityTab />
         ) : activeTab === 'forecasts' ? (
           <ForecastsTab />
         ) : (

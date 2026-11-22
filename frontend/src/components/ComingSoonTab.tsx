@@ -5,7 +5,7 @@ interface Props {
   tab: TabKey;
 }
 
-const TAB_INFO: Record<Exclude<TabKey, 'overview'>, {
+const TAB_INFO: Record<Exclude<TabKey, 'overview' | 'flexibility'>, {
   title: string;
   phase: string;
   description: string;
@@ -75,9 +75,10 @@ const TAB_INFO: Record<Exclude<TabKey, 'overview'>, {
 };
 
 export const ComingSoonTab: React.FC<Props> = ({ tab }) => {
-  if (tab === 'overview') return null;
+  if (tab === 'overview' || tab === 'flexibility') return null;
 
-  const info = TAB_INFO[tab];
+  const info = (TAB_INFO as Record<string, any>)[tab];
+  if (!info) return null;
 
   return (
     <div className="volt-coming-soon-container">
@@ -93,7 +94,7 @@ export const ComingSoonTab: React.FC<Props> = ({ tab }) => {
         <div className="volt-coming-soon-section">
           <h3 className="volt-subheading">Planned Core Deliverables:</h3>
           <ul className="volt-feature-list">
-            {info.deliverables.map((item, idx) => (
+            {info.deliverables.map((item: string, idx: number) => (
               <li key={idx} className="volt-feature-item">
                 <span className="volt-check-icon">▹</span>
                 <span>{item}</span>

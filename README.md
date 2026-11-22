@@ -48,23 +48,25 @@ VOLT enforces strict provenance tracking across every parameter:
 ```text
 ┌────────────────────────────────────────────────────────┐
 │                   React + TypeScript UI                │
-│    (Overview, Simulation, Forecasts, Optimization)     │
+│    (Overview, Forecasts, Customer Flexibility)         │
 └───────────────────────────▲────────────────────────────┘
                             │ REST / JSON (FastAPI)
 ┌───────────────────────────┴────────────────────────────┐
 │                    VOLT Backend API                    │
-│   ├── /api/v1/health                                   │
-│   ├── /api/v1/config/case                              │
-│   ├── /api/v1/clusters                                 │
-│   └── /api/v1/scenarios                                │
+│   ├── /api/v1/health & /api/v1/config/case             │
+│   ├── /api/v1/clusters & /api/v1/scenarios             │
+│   ├── /api/v1/data & /api/v1/baseline                  │
+│   ├── /api/v1/forecasts                                │
+│   ├── /api/v1/customers & /api/v1/flexibility          │
+│   └── /api/v1/tariffs & /api/v1/incentives             │
 └───────────────────────────▲────────────────────────────┘
                             │
 ┌───────────────────────────┴────────────────────────────┐
 │                      VOLT Engine                       │
 │  ├── data/          Ingestion & 15-min IEX adapters    │
 │  ├── forecasting/   Probabilistic quantile models      │
+│  ├── customer/      Disaggregation, envelopes, tariffs │
 │  ├── scenarios/     Correlated stress disturbance sets │
-│  ├── customer/      Service windows & tariff bounds    │
 │  ├── batteries/     Decoupled BESS & swap pack physics │
 │  ├── optimization/  Pyomo MILP with CVaR & fallback   │
 │  ├── control/       Rolling MPC feedback orchestrator  │
@@ -97,16 +99,17 @@ volt/
 │       ├── battery_pack_hourly.csv.gz  # 219,120 rows battery pack inventory tracking
 │       ├── customer_requests.csv.gz    # Representative hourly charging requests
 │       ├── swap_events.csv.gz          # Hourly swap events and pack transitions
+│       ├── customer_requests_disaggregated.csv.gz # 59,087 disaggregated individual sessions
 │       └── data_manifest.json          # Integrity hashes, row counts, and date bounds
 ├── models/
 │   └── forecasting/                   # Trained Phase 3 quantile model artifacts (*.pkl) & metrics
 ├── backend/
 │   ├── Dockerfile
 │   ├── app/
-│   │   ├── main.py                    # FastAPI application with Phase 1, 2, & 3 routes
-│   │   ├── api/routes/                # Endpoints (/health, /case, /clusters, /scenarios, /data, /baseline, /forecasts)
+│   │   ├── main.py                    # FastAPI application with Phase 1–4 routes
+│   │   ├── api/routes/                # Endpoints (/health, /case, /clusters, /scenarios, /data, /baseline, /forecasts, /customers, /flexibility, /tariffs, /incentives)
 │   │   ├── schemas/                   # Pydantic schemas with provenance tracking
-│   │   ├── services/                  # Configuration, data & forecasting services
+│   │   ├── services/                  # Configuration, data, forecasting & customer services
 │   │   └── db/                        # PostgreSQL connection pool & session manager
 │   └── tests/                         # Backend API & service tests
 ├── engine/
@@ -124,6 +127,13 @@ volt/
 │   │   └── pipeline.py                # Multi-vector pipeline orchestrating 5 targets across all clusters
 │   ├── scenarios/                     # Multi-vector scenario generator
 │   ├── customer/                      # Customer flexibility & incentive bounds
+│   │   ├── models.py                  # Typed Pydantic request & flexibility models
+│   │   ├── envelope.py                # Flexibility envelope engine with reserve & deadline guards
+│   │   ├── response_model.py          # Bounded logistic acceptance model (deterministic + Monte Carlo)
+│   │   ├── tariffs.py                 # Regulatory dynamic tariff policy with clipping
+│   │   ├── incentives.py              # Avoided wholesale procurement cost-benefit engine
+│   │   ├── synthetic_requests.py      # Request disaggregation engine with MWh reconciliation
+│   │   └── scenarios.py               # Scenario disturbance evaluator (9 Phase 4 scenarios)
 │   ├── batteries/                     # Separate BESS and swap pack models
 │   ├── optimization/                  # MILP formulation & solver interfaces
 │   ├── control/                       # Rolling-horizon MPC loop
@@ -133,20 +143,23 @@ volt/
 │   ├── metrics/                       # Energy reconciliation, reliability & loss audits
 │   │   └── reconciliation.py          # Strict meter-boundary energy balance auditor
 │   └── tests/                         # Engine unit & validation tests
-├── frontend/                          # React + TypeScript dashboard (Vite + TailwindCSS)
+├── frontend/                          # React + TypeScript dashboard (Overview, Forecasts, Flexibility)
 ├── scripts/
 │   ├── generate_synthetic_data.py     # CLI to generate reproducible 5-city dataset
 │   ├── run_baseline_calibration.py    # CLI to calibrate BAU policy to 78% reliability & 10% losses
-│   └── train_forecasting_models.py    # CLI to train & evaluate Phase 3 quantile forecasting models
+│   ├── train_forecasting_models.py    # CLI to train & evaluate Phase 3 quantile forecasting models
+│   └── generate_customer_requests.py  # CLI to disaggregate and reconcile individual customer requests
 ├── reports/
 │   ├── phase2_data_quality.md         # Synthetic data quality audit and integrity hashes
 │   ├── phase2_baseline_calibration.md # Calibration residuals, identifiability disclosure & reserve arithmetic
 │   ├── phase3_forecasting.md          # Multi-vector forecasting performance report & backtest metrics
-│   └── phase3_model_card.md           # Model card documenting specifications & boundaries
+│   ├── phase3_model_card.md           # Model card documenting specifications & boundaries
+│   ├── phase4_customer_flexibility.md # Phase 4 architecture, reconciliation & scenario evaluation report
+│   └── phase4_acceptance_model_card.md # Model card documenting customer acceptance logistic model
 └── docs/
     ├── data_dictionary.md             # Logical entity schemas & energy balance records
     ├── assumptions_register.md        # Register of all unsupplied assumptions & calibrated params
-    └── api_contracts.md               # API endpoint specifications (v1 to v12)
+    └── api_contracts.md               # API endpoint specifications (v1 to v15)
 ```
 
 ---
@@ -186,14 +199,20 @@ Train and evaluate multi-vector quantile models across all 5 canonical targets:
 python scripts/train_forecasting_models.py
 ```
 
-### Step 5: Run Tests
+### Step 5: Disaggregate & Reconcile Customer Flexibility Requests
+Generate individual customer fast-charging and battery-swapping service requests with exact cluster-level MWh reconciliation:
+```powershell
+python scripts/generate_customer_requests.py --max-hours 6
+```
+
+### Step 6: Run Tests
 From the project root:
 ```powershell
 python -m pytest
 ```
-Output confirms all 55 tests pass across engine units, physical validations, synthetic generator, IEX adapter, BAU policy, energy reconciliation, forecasting models, and backend API routes.
+Output confirms all **90 tests pass** across physical validations, synthetic generator, IEX adapter, BAU policy, energy reconciliation, forecasting models, customer request disaggregation, flexibility envelopes, logistic response, dynamic tariffs, and FastAPI backend routes.
 
-### Step 6: Running the Backend
+### Step 7: Running the Backend
 From the project root:
 ```powershell
 python -m uvicorn backend.app.main:app --reload --host 0.0.0.0 --port 8000
@@ -212,14 +231,22 @@ Key API routes available:
 - `GET /api/v1/forecasts/latest` — Rolling 24-hour P10, P50, and P90 forecast
 - `POST /api/v1/forecasts/run` — Dynamic rolling forecast execution
 - `GET /api/v1/forecasts/metrics` — Chronological backtest evaluation metrics
+- `GET /api/v1/customers/segments` — Customer segments and behavioral parameters
+- `GET /api/v1/customers/requests/summary` — Disaggregated request volume and MWh reconciliation
+- `GET /api/v1/flexibility/summary` — Aggregate flexible vs non-shiftable capacity envelopes
+- `GET /api/v1/flexibility/envelopes` — Request-level envelope inspection with reason codes
+- `POST /api/v1/flexibility/scenarios/evaluate` — Scenario disturbance evaluation on flexibility
+- `GET /api/v1/flexibility/scenarios/catalog` — Phase 4 disturbance scenarios catalogue
+- `POST /api/v1/tariffs/recommend` — Dynamic tariff recommendation with regulatory clipping
+- `GET /api/v1/incentives/summary` — Incentive cost-benefit evaluation against avoided peak procurement
 
-### Step 7: Running the Frontend
+### Step 8: Running the Frontend
 ```powershell
 cd frontend
 npm install
 npm run dev
 ```
-Open `http://localhost:5173` in your browser to inspect the interactive digital twin dashboard (Overview & Forecasts tabs).
+Open `http://localhost:5173` in your browser to inspect the interactive digital twin dashboard (Overview, Forecasts, and Customer Flexibility tabs).
 
 ---
 
@@ -268,10 +295,54 @@ Rolling 24-hour ahead quantile models (`HistGradientBoostingRegressor`) were eva
 
 ---
 
-## 8. Current Implementation Boundaries (Phase 3)
+## 8. Phase 4 Customer Flexibility & Dynamic Tariffs
 
-1. **Customer Flexibility (Phase 4):** Customer price-elastic response and dynamic tariff shifting will be integrated in Phase 4.
-2. **MILP Mathematical Optimization (Phase 5):** The dispatch currently utilizes a deterministic heuristic Business-as-Usual (BAU) baseline. Pyomo MILP optimization and CVaR risk formulation will be implemented in Phase 5.
-3. **Rolling-Horizon MPC (Phase 6):** Feedback-driven rolling-horizon closed-loop MPC orchestration is scheduled for Phase 6.
+Phase 4 operationalizes individual customer service windows, voluntary demand flexibility envelopes, bounded dynamic retail tariffs, and wholesale-avoidance incentive recommendations across all five metro clusters.
+
+### Core Architectural Components:
+
+1. **Synthetic Disaggregation & Strict Reconciliation:**
+   - Disaggregates cluster-level hourly aggregate fast-charge MWh and swap request counts into discrete session-level `CustomerServiceRequest` records.
+   - **Reconciliation Audit:** Reconciled 60 cluster-hours across all 5 clusters:
+     - Fast-Charge Demand Pass Rate: **100.00%** (max residual: 0.00010 MWh).
+     - Battery Swap Count Pass Rate: **100.00%** (max residual: 0.0374% due to discrete integer packs).
+     - Generated 59,087 validated requests without energy creation or loss.
+
+2. **Customer Flexibility Envelope Engine:**
+   - Delineates non-shiftable from flexible demand based on explicit segment opt-in status, hard arrival/departure deadlines, and operational reserve requirements.
+   - **Non-Shiftable Categorization:** Emergency services (police, medical) and a mandatory 5.0% priority fleet reserve are strictly non-shiftable with zero delay tolerance (`EMERGENCY_NON_SHIFTABLE`, `PRIORITY_RESERVE_NON_SHIFTABLE`).
+   - **Discrete Pack Constraints:** Swapping flexibility enforces integer pack counts ($\Delta \text{packs} \in \mathbb{Z}^+$).
+   - **Deadline Invariance:** Zero deadline violations across all flexible allocations.
+
+3. **Bounded Logistic Customer Acceptance Model:**
+   - Models voluntary customer shift acceptance using a bounded sigmoid response curve calibrated per segment:
+     $$p_{\text{accept}} = \operatorname{clip}\left(\sigma\left(\beta_0 + \beta_{\text{inc}} \cdot I_{\text{rel}} - \beta_{\text{delay}} \cdot \Delta t_{\text{norm}} - \beta_{\text{urg}} \cdot U\right), 0.0, 1.0\right)$$
+   - Supports dual execution modes:
+     - **Deterministic Expected Value Mode:** $\mathbb{E}[E_{\text{flex}}] = p_{\text{accept}} \cdot E_{\text{offered}}$, ensuring smooth, gradient-friendly inputs for optimization.
+     - **Stochastic Monte Carlo Mode:** $X \sim \operatorname{Bernoulli}(p_{\text{accept}})$ with reproducible random seeds for operational stress-testing.
+
+4. **Dynamic Tariff Policy & Regulatory Guardrails:**
+   - Enforces the source-mandated regulatory band bounding retail tariffs:
+     $$\bar{T}_{\text{prev}} \times 0.80 \le T_{\text{dynamic}} \le \bar{T}_{\text{prev}} \times 1.20$$
+   - Clamping actions are tracked with transparent audit logs and regulatory violation flags.
+
+5. **Incentive Recommendation Policy:**
+   - Evaluates voluntary incentives against avoided peak wholesale procurement costs (IEX Real-Time price spikes / peak DISCOM demand charges).
+   - Returns `NOT_EVALUABLE` fallback when required cost inputs are absent, preventing arbitrary incentive payouts.
+   - **Accounting Decoupling:** Retail tariff revenue ($T \times E$) is strictly decoupled from flexibility incentive expenses ($I \times E_{\text{shifted}}$) to prevent double-counting.
+
+6. **Scenario & Sensitivity Evaluator:**
+   - Evaluates 9 disturbance scenarios (`BASE_FLEXIBILITY`, `PEAK_SQUEEZE_SURGE`, `HEATWAVE_AIRCON_SPIKE`, `DISCOM_SURCHARGE_HIKE`, `RENEWABLE_DROUGHT_STRESS`, `EMERGENCY_CORRIDOR_SURGE`, `EXTREME_MARKET_SPIKE`, `INCENTIVE_BUDGET_HALVED`, `ZERO_INCENTIVE_COUNTERFACTUAL`).
+   - Preserves 0 deadline violations across all scenarios.
+
+---
+
+## 9. Current Implementation Boundaries (Phase 4)
+
+1. **Phase 4 Complete:** Customer service windows, demand flexibility envelopes, dynamic tariffs, and incentive policies are fully operational with 100% test coverage and interactive frontend integration.
+2. **Phase 5 Next — MILP Mathematical Optimization:**
+   - The current engine uses deterministic baseline evaluation and reference tariff policies.
+   - Mathematical co-optimization using **Pyomo MILP with CVaR risk formulation**, solver fallback mechanisms, and battery dispatch constraints will be implemented in Phase 5.
+3. **Phase 6 — Rolling-Horizon MPC:** Closed-loop feedback-driven Model Predictive Control across multi-horizon rolling states will be implemented in Phase 6.
 4. **Live Grid Execution:** VOLT is an analytical digital twin and simulation prototype. It does not interface with live SCADA, hardware switches, or submit binding financial bids to the Indian Energy Exchange.
-5. **Target Feasibility:** Stated business targets (89.7% reliability, 8.0% losses, >12% EBITDA) are long-term business goals evaluated during optimized simulation, not baseline achievements.
+5. **Provenance Disclosure:** All customer behavioral parameters (elasticity, opt-in rates, logistic coefficients) are explicitly classified as `ASSUMED` or `SYNTHETIC` and documented in the Assumptions Register. They are never presented as observed empirical data.

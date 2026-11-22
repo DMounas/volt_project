@@ -9,10 +9,15 @@ class FileInfoSchema(BaseModel):
     """Metadata schema for a generated data file."""
 
     path: str
-    row_count: int
-    size_bytes: int
+    row_count: int = 0
+    size_bytes: int = 0
     sha256: str
-    description: str
+    description: str = ""
+    records: Optional[int] = None
+    provenance: Optional[str] = None
+    reconciliation_passed: Optional[bool] = None
+
+    model_config = {"extra": "allow"}
 
 
 class DataManifestResponse(BaseModel):

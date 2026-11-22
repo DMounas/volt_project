@@ -181,9 +181,9 @@ procurement_tariffs:
     sensitivity: { low: 70.00, base: 85.00, high: 110.00 }
 
 customer_flexibility:
-  description: "Fleet customer willingness to shift charging window upon incentive"
+  description: "Fleet and retail customer willingness to shift charging window upon incentive"
   provenance: "ASSUMED"
-  rationale: "Price elasticity and opt-in rates are uncalibrated without historical driver response logs."
+  rationale: "Price elasticity and opt-in rates are uncalibrated without historical driver response logs. All behavioural parameters are strictly synthetic assumptions."
   opt_in_fleet_share:
     value: 0.30
     unit: "fraction"
@@ -200,6 +200,97 @@ customer_flexibility:
     value: 2.50
     unit: "INR/kWh"
     delay_hours: 2.0
+
+  customer_segments:
+    EMERGENCY:
+      share: { value: 0.03, sensitivity: { low: 0.02, base: 0.03, high: 0.05 } }
+      priority_rank: 1
+      opt_in_rate: { value: 0.0, sensitivity: { low: 0.0, base: 0.0, high: 0.0 } }
+      max_wait_minutes: 0.0
+      max_deferral_minutes: 0.0
+      flexible_fraction: 0.0
+      is_shiftable: false
+      description: "Ambulances, emergency response, law enforcement; strictly non-deferrable"
+    PRIORITY_FLEET:
+      share: { value: 0.12, sensitivity: { low: 0.08, base: 0.12, high: 0.15 } }
+      priority_rank: 2
+      opt_in_rate: { value: 0.0, sensitivity: { low: 0.0, base: 0.0, high: 0.0 } }
+      max_wait_minutes: 15.0
+      max_deferral_minutes: 0.0
+      flexible_fraction: 0.0
+      is_shiftable: false
+      description: "Critical public transit & government service fleets; protected under 5% uncommitted reserve"
+    RIDE_HAILING:
+      share: { value: 0.35, sensitivity: { low: 0.30, base: 0.35, high: 0.40 } }
+      priority_rank: 3
+      opt_in_rate: { value: 0.35, sensitivity: { low: 0.20, base: 0.35, high: 0.50 } }
+      max_wait_minutes: 30.0
+      max_deferral_minutes: 60.0
+      flexible_fraction: 0.40
+      is_shiftable: true
+      description: "Commercial 4W/3W ride-hailing drivers; moderate flexibility during lulls"
+    LOGISTICS_FLEET:
+      share: { value: 0.30, sensitivity: { low: 0.25, base: 0.30, high: 0.40 } }
+      priority_rank: 4
+      opt_in_rate: { value: 0.60, sensitivity: { low: 0.40, base: 0.60, high: 0.80 } }
+      max_wait_minutes: 90.0
+      max_deferral_minutes: 180.0
+      flexible_fraction: 0.70
+      is_shiftable: true
+      description: "Commercial 2W/3W last-mile delivery and freight fleets; high scheduling slack"
+    PRIVATE_EV:
+      share: { value: 0.20, sensitivity: { low: 0.15, base: 0.20, high: 0.25 } }
+      priority_rank: 5
+      opt_in_rate: { value: 0.25, sensitivity: { low: 0.10, base: 0.25, high: 0.45 } }
+      max_wait_minutes: 45.0
+      max_deferral_minutes: 90.0
+      flexible_fraction: 0.50
+      is_shiftable: true
+      description: "Individual private EV commuters; voluntary price-responsive charging"
+
+  fast_charging_session_params:
+    min_energy_kwh: 15.0
+    max_energy_kwh: 60.0
+    mean_energy_kwh: 30.0
+    nominal_charger_power_kw: 50.0
+
+  battery_swap_session_params:
+    nominal_pack_capacity_kwh: 2.5
+    pack_count_distribution:
+      1: 0.30
+      2: 0.55
+      3: 0.15
+
+  acceptance_logistic_model:
+    description: "Bounded logistic customer flexibility acceptance probability function"
+    formula: "sigmoid(beta_0 + beta_1 * incentive_signal + beta_2 * notice_hours + beta_3 * slack_hours + segment_effect)"
+    provenance: "ASSUMED"
+    beta_0: { value: -1.50, sensitivity: { low: -2.00, base: -1.50, high: -1.00 } }
+    beta_1: { value: 0.80, sensitivity: { low: 0.40, base: 0.80, high: 1.50 } }
+    beta_2: { value: 0.30, sensitivity: { low: 0.10, base: 0.30, high: 0.50 } }
+    beta_3: { value: 0.40, sensitivity: { low: 0.20, base: 0.40, high: 0.60 } }
+    segment_effects:
+      EMERGENCY: -999.0
+      PRIORITY_FLEET: -999.0
+      RIDE_HAILING: 0.00
+      LOGISTICS_FLEET: 0.50
+      PRIVATE_EV: -0.20
+
+  dynamic_tariff_policy:
+    description: "Regulatory bounded dynamic retail tariff policy enforcing 80%-120% previous day average"
+    provenance: "REGULATORY_GUARDRAIL_ASSUMED"
+    lower_bound_multiplier: 0.80
+    upper_bound_multiplier: 1.20
+    reference_scope: "cluster_modality_previous_day_average"
+    default_base_fast_charge_inr: 11.50
+    default_base_swap_inr: 85.00
+
+  incentive_recommendation_policy:
+    description: "Voluntary flexibility incentive recommendation evaluated against operational benefit"
+    provenance: "ASSUMED_POLICY"
+    base_fast_charge_incentive_inr_per_kwh: 1.80
+    base_swap_incentive_inr_per_pack: 25.00
+    min_cost_benefit_ratio: 1.0
 
 inter_city_transfer:
   description: "Physical electricity and pack transfer constraints between clusters"

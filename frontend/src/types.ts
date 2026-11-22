@@ -274,3 +274,211 @@ export interface ForecastMetricsResponse {
   metrics: Record<string, any>;
   provenance: Provenance;
 }
+
+// ==========================================
+// Phase 4: Customer Flexibility Types
+// ==========================================
+export type CustomerSegment =
+  | 'EMERGENCY'
+  | 'PRIORITY_FLEET'
+  | 'RIDE_HAILING'
+  | 'LOGISTICS_FLEET'
+  | 'PRIVATE_EV';
+
+export type ServiceType = 'FAST_CHARGE' | 'BATTERY_SWAP';
+
+export interface SegmentInfo {
+  segment: CustomerSegment;
+  priority_rank: number;
+  share_assumed: number;
+  opt_in_rate_assumed: number;
+  max_wait_minutes: number;
+  max_deferral_minutes: number;
+  flexible_fraction: number;
+  is_shiftable: boolean;
+  description: string;
+  provenance: string;
+}
+
+export interface CustomerSegmentsResponse {
+  total_segments: number;
+  segments: SegmentInfo[];
+  provenance: string;
+  disclaimer: string;
+}
+
+export interface RequestClusterSummary {
+  cluster_id: string;
+  fast_charge_requests: number;
+  swap_requests: number;
+  total_fast_charge_kwh: number;
+  total_swap_packs: number;
+  reconciliation_pass_rate_pct: number;
+}
+
+export interface CustomerRequestsSummaryResponse {
+  total_requests: number;
+  total_fast_charge_requests: number;
+  total_battery_swap_requests: number;
+  total_fast_charge_mwh: number;
+  total_swap_mwh: number;
+  total_swap_packs: number;
+  reconciliation_passed: boolean;
+  cluster_summaries: RequestClusterSummary[];
+  provenance: string;
+  disclaimer: string;
+}
+
+export interface FlexibilitySummaryResponse {
+  total_demand_kwh: number;
+  non_shiftable_demand_kwh: number;
+  eligible_flexible_demand_kwh: number;
+  opted_in_demand_kwh: number;
+  expected_accepted_demand_kwh: number;
+  realized_accepted_demand_kwh: number;
+  protected_priority_requests: number;
+  protected_priority_demand_kwh: number;
+  deadline_violations: number;
+  modality_breakdown: Record<string, any>;
+  segment_breakdown: Record<string, any>;
+  provenance: string;
+}
+
+export interface FlexibilityEnvelope {
+  request_id: string;
+  cluster_id: string;
+  request_type: ServiceType;
+  customer_segment: CustomerSegment;
+  arrival_ts: string;
+  earliest_start_ts: string;
+  deadline_ts: string;
+  requested_energy_kwh: number;
+  minimum_service_energy_kwh: number;
+  non_shiftable_energy_kwh: number;
+  flexible_energy_kwh: number;
+  requested_pack_count?: number;
+  minimum_pack_count?: number;
+  non_shiftable_pack_count?: number;
+  flexible_pack_count?: number;
+  pack_capacity_kwh?: number;
+  eligible_time_slots: string[];
+  max_deferral_minutes: number;
+  flexibility_opt_in: boolean;
+  is_deferrable: boolean;
+  reason_code: string;
+  service_risk_score: number;
+  provenance: string;
+  assumption_reference: string;
+}
+
+export interface FlexibilityEnvelopesResponse {
+  total_count: number;
+  offset: number;
+  limit: number;
+  envelopes: FlexibilityEnvelope[];
+  provenance: string;
+}
+
+export interface TariffRecommendation {
+  cluster_id: string;
+  service_type: ServiceType;
+  timestamp: string;
+  previous_day_average_tariff_inr_per_kwh: number;
+  tariff_min_inr_per_kwh: number;
+  tariff_max_inr_per_kwh: number;
+  raw_tariff_inr_per_kwh: number;
+  final_tariff_inr_per_kwh: number;
+  clamped: boolean;
+  clamping_direction: string;
+  pricing_factors: Record<string, number>;
+  adjustment_reasons: string[];
+  provenance: string;
+}
+
+export interface IncentiveOffer {
+  offer_id: string;
+  request_id: string;
+  cluster_id: string;
+  customer_segment: CustomerSegment;
+  service_type: ServiceType;
+  proposed_shift_kwh: number;
+  proposed_shift_packs?: number;
+  proposed_slots: string[];
+  baseline_tariff_inr_per_kwh: number;
+  effective_tariff_inr_per_kwh: number;
+  incentive_amount_inr: number;
+  incentive_rate_inr_per_kwh: number;
+  expected_acceptance_probability: number;
+  expected_accepted_energy_kwh: number;
+  expected_accepted_packs?: number;
+  stochastic_realized_acceptance?: boolean;
+  realized_accepted_energy_kwh?: number;
+  estimated_incentive_cost_inr: number;
+  estimated_operational_benefit_inr?: number;
+  net_expected_value_inr?: number;
+  evaluable: boolean;
+  status: string;
+  reason_codes: string[];
+  offer_expiration_ts: string;
+  provenance: string;
+}
+
+export interface ScenarioIncentiveSummary {
+  scenario_id: string;
+  scenario_name: string;
+  description: string;
+  expected_accepted_demand_kwh: number;
+  realized_accepted_demand_kwh: number;
+  total_retail_revenue_inr: number;
+  total_incentive_cost_inr: number;
+  net_financial_impact_inr: number;
+  average_wait_minutes: number;
+}
+
+export interface IncentivesSummaryResponse {
+  scenarios: ScenarioIncentiveSummary[];
+  provenance: string;
+  disclaimer: string;
+}
+
+export interface FlexibilityScenarioMetadata {
+  scenario_id: string;
+  name: string;
+  description: string;
+  seed: number;
+  parameters: Record<string, any>;
+  provenance: string;
+}
+
+export interface FlexibilityScenariosResponse {
+  total_scenarios: number;
+  scenarios: FlexibilityScenarioMetadata[];
+  provenance: string;
+}
+
+export interface ScenarioEvaluationResult {
+  scenario_id: string;
+  scenario_name: string;
+  description: string;
+  seed: number;
+  total_requests: number;
+  total_demand_kwh: number;
+  non_shiftable_demand_kwh: number;
+  eligible_flexible_demand_kwh: number;
+  opted_in_demand_kwh: number;
+  expected_accepted_demand_kwh: number;
+  realized_accepted_demand_kwh: number;
+  deadline_violations: number;
+  protected_priority_requests: number;
+  protected_priority_demand_kwh: number;
+  total_retail_revenue_inr: number;
+  total_incentive_cost_inr: number;
+  average_wait_minutes: number;
+  average_effective_tariff_inr_per_kwh: number;
+  cluster_metrics: Record<string, any>;
+  modality_metrics: Record<string, any>;
+  segment_metrics: Record<string, any>;
+  sample_envelopes: FlexibilityEnvelope[];
+  sample_offers: IncentiveOffer[];
+  provenance: string;
+}

@@ -13,11 +13,15 @@ from backend.app.api.routes import (
     baseline_router,
     case_router,
     clusters_router,
+    customer_router,
     data_router,
+    flexibility_router,
     forecast_router,
     health_router,
     iex_router,
+    incentive_router,
     scenarios_router,
+    tariff_router,
 )
 
 app_name = os.getenv("APP_NAME", "VOLT — Virtual Orchestration of Load, Tariffs & Energy")
@@ -62,6 +66,10 @@ app.include_router(data_router, prefix=api_v1_prefix)
 app.include_router(iex_router, prefix=api_v1_prefix)
 app.include_router(baseline_router, prefix=api_v1_prefix)
 app.include_router(forecast_router, prefix=api_v1_prefix)
+app.include_router(customer_router, prefix=api_v1_prefix)
+app.include_router(flexibility_router, prefix=api_v1_prefix)
+app.include_router(tariff_router, prefix=api_v1_prefix)
+app.include_router(incentive_router, prefix=api_v1_prefix)
 
 
 @app.get("/", tags=["Root"])

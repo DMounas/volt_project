@@ -227,3 +227,91 @@ Time-aligned physical atmospheric predictors in `cluster_hourly`.
 | `precipitation_mm` | `NUMERIC(6,1)` | mm | SYNTHETIC | Hourly accumulated rainfall |
 | `solar_irradiance_w_m2` | `NUMERIC(7,1)` | W/m² | SYNTHETIC | Global horizontal irradiance proxy (strictly 0 at night) |
 | `wind_speed_m_s` | `NUMERIC(5,2)` | m/s | SYNTHETIC | 10m hub-height wind speed [0.5, 22.0] |
+
+---
+
+## 8. Customer Flexibility & Dynamic Tariff Entities (Phase 4)
+
+### 8.1 `customer_service_request`
+Individual customer EV fast-charging sessions and battery swapping requests disaggregated from aggregate load.
+
+| Field | Type | Unit | Provenance | Description |
+|---|---|---|---|---|
+| `request_id` | `VARCHAR(32)` (PK) | — | SYNTHETIC | Unique synthetic request ID (no personal identifying info) |
+| `cluster_id` | `VARCHAR(32)` (FK) | — | OBSERVED | Metro cluster identifier |
+| `request_type` | `VARCHAR(16)` | — | OBSERVED | Physical service modality: `FAST_CHARGE` or `BATTERY_SWAP` |
+| `customer_segment` | `VARCHAR(32)` | — | ASSUMED | `EMERGENCY`, `PRIORITY_FLEET`, `RIDE_HAILING`, `LOGISTICS_FLEET`, `PRIVATE_EV` |
+| `arrival_ts` | `TIMESTAMPTZ` | — | SYNTHETIC | Customer arrival timestamp (Asia/Kolkata) |
+| `departure_deadline_ts` | `TIMESTAMPTZ` | — | SYNTHETIC | Customer promised-ready departure deadline ($T_{\text{deadline}} \ge T_{\text{arrival}}$) |
+| `requested_energy_kwh` | `NUMERIC(8,3)` | kWh | SYNTHETIC | Fast charging energy requirement (> 0) |
+| `minimum_service_energy_kwh` | `NUMERIC(8,3)` | kWh | SYNTHETIC | Minimum acceptable energy for trip continuation |
+| `requested_pack_count` | `INTEGER` | count | SYNTHETIC | Discrete integer pack count requested (battery swap) |
+| `minimum_pack_count` | `INTEGER` | count | SYNTHETIC | Minimum discrete integer packs required |
+| `pack_capacity_kwh` | `NUMERIC(5,2)` | kWh | ASSUMED | Nominal pack capacity (2.25 - 2.50 kWh) |
+| `max_wait_minutes` | `NUMERIC(6,1)` | min | ASSUMED | Maximum acceptable queue/wait time |
+| `max_deferral_minutes` | `NUMERIC(6,1)` | min | ASSUMED | Maximum deferral slack beyond normal charging duration |
+| `flexibility_opt_in` | `BOOLEAN` | — | SYNTHETIC | Explicit opt-in state (never inferred from segment) |
+| `service_priority` | `INTEGER` | 1..5 | ASSUMED | Priority tier (1=Emergency, 2=Priority Fleet, 3=Ride, 4=Logistics, 5=Private) |
+| `baseline_tariff_inr_per_kwh` | `NUMERIC(8,2)` | INR/kWh | ASSUMED | Base applicable retail energy tariff |
+| `previous_day_avg_tariff_inr_per_kwh` | `NUMERIC(8,2)` | INR/kWh | ASSUMED | Reference previous day average tariff for cluster |
+
+### 8.2 `customer_flexibility_envelope`
+Deterministic service-feasibility representation delineating non-shiftable demand from voluntary flexible load.
+
+| Field | Type | Unit | Provenance | Description |
+|---|---|---|---|---|
+| `request_id` | `VARCHAR(32)` (FK) | — | SYNTHETIC | Associated customer request |
+| `cluster_id` | `VARCHAR(32)` | — | OBSERVED | Metro cluster identifier |
+| `request_type` | `VARCHAR(16)` | — | OBSERVED | `FAST_CHARGE` or `BATTERY_SWAP` |
+| `customer_segment` | `VARCHAR(32)` | — | ASSUMED | Customer segment classification |
+| `arrival_ts` | `TIMESTAMPTZ` | — | SYNTHETIC | Arrival time |
+| `earliest_start_ts` | `TIMESTAMPTZ` | — | SYNTHETIC | Earliest permissible service start time |
+| `deadline_ts` | `TIMESTAMPTZ` | — | SYNTHETIC | Departure deadline |
+| `requested_energy_kwh` | `NUMERIC(8,3)` | kWh | SYNTHETIC | Total requested energy |
+| `minimum_service_energy_kwh` | `NUMERIC(8,3)` | kWh | SYNTHETIC | Minimum non-deferrable component |
+| `non_shiftable_energy_kwh` | `NUMERIC(8,3)` | kWh | SYNTHETIC | Energy that must be served immediately |
+| `flexible_energy_kwh` | `NUMERIC(8,3)` | kWh | SYNTHETIC | Energy eligible for voluntary deferral |
+| `requested_pack_count` | `INTEGER` | count | SYNTHETIC | Requested discrete pack count |
+| `non_shiftable_pack_count` | `INTEGER` | count | SYNTHETIC | Non-shiftable integer pack count |
+| `flexible_pack_count` | `INTEGER` | count | SYNTHETIC | Eligible flexible integer pack count |
+| `eligible_time_slots` | `TEXT[]` | — | SYNTHETIC | Hourly ISO timestamps within service window |
+| `max_deferral_minutes` | `NUMERIC(6,1)` | min | ASSUMED | Feasible schedule deferral buffer |
+| `is_deferrable` | `BOOLEAN` | — | SYNTHETIC | True if positive flexible energy and opted in |
+| `reason_code` | `VARCHAR(64)` | — | SYNTHETIC | Explainable reason code (`EMERGENCY_NON_SHIFTABLE`, `NOT_OPTED_IN`, etc.) |
+| `service_risk_score` | `NUMERIC(4,2)` | [0.0, 1.0] | SYNTHETIC | Risk index of proposed shift |
+
+### 8.3 `dynamic_tariff_recommendation`
+Dynamic retail energy tariff bounded to $[0.80x, 1.20x]$ previous day average.
+
+| Field | Type | Unit | Provenance | Description |
+|---|---|---|---|---|
+| `cluster_id` | `VARCHAR(32)` | — | OBSERVED | Cluster identifier |
+| `service_type` | `VARCHAR(16)` | — | OBSERVED | Modality |
+| `timestamp` | `TIMESTAMPTZ` | — | SYNTHETIC | Recommendation interval timestamp |
+| `previous_day_average_tariff_inr_per_kwh` | `NUMERIC(8,2)` | INR/kWh | ASSUMED | Reference benchmark rate |
+| `tariff_min_inr_per_kwh` | `NUMERIC(8,2)` | INR/kWh | REGULATORY_GUARDRAIL | Regulatory floor = $0.80 \times \bar{T}_{\text{prev}}$ |
+| `tariff_max_inr_per_kwh` | `NUMERIC(8,2)` | INR/kWh | REGULATORY_GUARDRAIL | Regulatory ceiling = $1.20 \times \bar{T}_{\text{prev}}$ |
+| `raw_tariff_inr_per_kwh` | `NUMERIC(8,2)` | INR/kWh | ASSUMED_POLICY | Unconstrained wholesale & congestion adjusted tariff |
+| `final_tariff_inr_per_kwh` | `NUMERIC(8,2)` | INR/kWh | REGULATORY_GUARDRAIL | Final clipped tariff: $\text{clip}(T_{\text{raw}}, T_{\text{min}}, T_{\text{max}})$ |
+| `clamped` | `BOOLEAN` | — | REGULATORY_GUARDRAIL | True if raw tariff was clipped by boundary |
+| `clamping_direction` | `VARCHAR(16)` | — | REGULATORY_GUARDRAIL | `LOWER_BOUND`, `UPPER_BOUND`, or `NONE` |
+| `adjustment_reasons` | `TEXT[]` | — | ASSUMED_POLICY | Audit trail of price adjustments |
+
+### 8.4 `voluntary_incentive_offer`
+Separate financial incentive offer evaluated against operational wholesale procurement benefits.
+
+| Field | Type | Unit | Provenance | Description |
+|---|---|---|---|---|
+| `offer_id` | `VARCHAR(32)` (PK) | — | SYNTHETIC | Unique incentive offer ID |
+| `request_id` | `VARCHAR(32)` (FK) | — | SYNTHETIC | Associated customer request |
+| `proposed_shift_kwh` | `NUMERIC(8,3)` | kWh | SYNTHETIC | Proposed flexible energy to defer |
+| `proposed_shift_packs` | `INTEGER` | count | SYNTHETIC | Proposed discrete packs to defer |
+| `effective_tariff_inr_per_kwh` | `NUMERIC(8,2)` | INR/kWh | REGULATORY_GUARDRAIL | Retail customer billing rate |
+| `incentive_amount_inr` | `NUMERIC(8,2)` | INR | ASSUMED_POLICY | Decoupled cash/credit incentive paid to customer |
+| `expected_acceptance_probability` | `NUMERIC(5,4)` | [0.0, 1.0] | ASSUMED | Logistic acceptance model probability |
+| `expected_accepted_energy_kwh` | `NUMERIC(8,3)` | kWh | ASSUMED | Mathematical expectation $p \times E_{\text{flex}}$ |
+| `estimated_incentive_cost_inr` | `NUMERIC(8,2)` | INR | ASSUMED_POLICY | Expected operational incentive expenditure |
+| `estimated_operational_benefit_inr` | `NUMERIC(8,2)` | INR | ASSUMED_POLICY | Avoided peak wholesale procurement benefit |
+| `net_expected_value_inr` | `NUMERIC(8,2)` | INR | ASSUMED_POLICY | Operational benefit minus incentive cost |
+| `evaluable` | `BOOLEAN` | — | ASSUMED_POLICY | False if required cost inputs missing (`NOT_EVALUABLE`) |
+| `status` | `VARCHAR(32)` | — | ASSUMED_POLICY | `RECOMMENDED`, `NOT_EVALUABLE`, `INSUFFICIENT_BENEFIT` |

@@ -2,8 +2,9 @@ import React from 'react';
 
 export type TabKey =
   | 'overview'
-  | 'simulation'
+  | 'flexibility'
   | 'forecasts'
+  | 'simulation'
   | 'optimization'
   | 'batteries'
   | 'reports';
@@ -16,10 +17,11 @@ interface Props {
 export const Navigation: React.FC<Props> = ({ activeTab, onSelectTab }) => {
   const tabs: { key: TabKey; label: string; phase: string; activePhase: boolean }[] = [
     { key: 'overview', label: 'Overview', phase: 'Phase 1 Active', activePhase: true },
-    { key: 'simulation', label: 'Live Simulation', phase: 'Phase 4', activePhase: false },
+    { key: 'flexibility', label: 'Customer Flexibility', phase: 'Phase 4 Active', activePhase: true },
     { key: 'forecasts', label: 'Forecasts', phase: 'Phase 3 Active', activePhase: true },
+    { key: 'simulation', label: 'Dispatch Simulation', phase: 'Phase 5', activePhase: false },
     { key: 'optimization', label: 'Optimization Decisions', phase: 'Phase 5', activePhase: false },
-    { key: 'batteries', label: 'Battery Intelligence', phase: 'Phase 4', activePhase: false },
+    { key: 'batteries', label: 'Battery Intelligence', phase: 'Phase 6', activePhase: false },
     { key: 'reports', label: 'Reports', phase: 'Phase 7', activePhase: false },
   ];
 
