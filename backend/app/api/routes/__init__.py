@@ -15,6 +15,7 @@ from backend.app.api.routes.forecast_routes import router as forecast_router
 from backend.app.api.routes.health import router as health_router
 from backend.app.api.routes.optimization_routes import router as optimization_router
 from backend.app.api.routes.scenarios import router as scenarios_router
+from backend.app.api.routes.simulation_routes import router as simulation_router
 
 __all__ = [
     "health_router",
@@ -30,4 +31,5 @@ __all__ = [
     "tariff_router",
     "incentive_router",
     "optimization_router",
+    "simulation_router",
 ]

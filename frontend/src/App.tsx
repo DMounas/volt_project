@@ -16,6 +16,7 @@ import { Navigation } from './components/Navigation';
 import type { TabKey } from './components/Navigation';
 import { OptimizationTab } from './components/OptimizationTab';
 import { OverviewTab } from './components/OverviewTab';
+import { SimulationTab } from './components/SimulationTab';
 import type {
   BaselineCalibrationResponse,
   CaseConfigResponse,
@@ -106,6 +107,8 @@ export const App: React.FC = () => {
           <ForecastsTab />
         ) : activeTab === 'optimization' ? (
           <OptimizationTab />
+        ) : activeTab === 'simulation' ? (
+          <SimulationTab />
         ) : (
           <ComingSoonTab tab={activeTab} />
         )}

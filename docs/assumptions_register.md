@@ -233,3 +233,27 @@ This document lists every unknown parameter, the engineering rationale for its b
 - **Confidence Percentile $\alpha$:** 0.95 (evaluates the worst 5% loss tail).
 - **Risk Aversion Weight $\lambda_{\text{risk}}$:** 0.20 (balanced risk-return trade-off).
 - **Formulation:** Linear Rockafellar-Uryasev auxiliary variable representation ($\eta, u_s$).
+
+---
+
+### 2.13 Phase 6 Digital Twin, Closed-Loop Rolling MPC & Shock Disturbances
+
+#### Receding Horizon Architecture (`ASSUMED_POLICY`)
+- **MPC Control Step:** Exactly 1 hour ($t=0$ action executed; digital twin stepped forward by 1 hour).
+- **Receding Prediction Horizon:** 24 hours ($H=24$) re-optimized every hour.
+- **Dynamic Boundary Conditions:** Initial state $S_0$ for stationary BESS and swappable packs at interval $t$ dynamically equals the observed physical state of the digital twin at $t$.
+- **Forecast Non-Anticipativity:** Forecasts $\hat{W}(\tau \mid t)$ generated from origin $t$ do not access future actual realizations. Contingencies with `ZERO_AHEAD` visibility remain at baseline expectation until active.
+
+#### Inter-City Isolation (`ASSUMED_REGULATORY`)
+- **Zero Inter-City Electricity Wheeling:** Power transfer between metro clusters is strictly $0.0\text{ MW}$. Energy balances are fully localized to each municipal cluster.
+- **Battery Pack Transport:** Disabled by default ($\Delta N_{\text{transport}} = 0$).
+
+#### EBITDA Evaluation Invariant (`ACCOUNTING_INVARIANT`)
+- Corporate EBITDA cannot be evaluated solely from station operating dispatch ledgers.
+- If corporate overhead, real estate leases, SG&A, debt service, and depreciation schedules are missing, EBITDA margin returns `NOT_EVALUABLE`.
+- Net Operating Contribution ($₹\text{Retail Revenue} - ₹\text{Procurement} - ₹\text{Degradation} - ₹\text{Incentives}$) is reported separately.
+
+#### Crisis Disturbance Engine (`SYNTHETIC_SHOCKS`)
+- Configured via `config/scenarios.yaml`.
+- Includes 10 reproducible scenarios: `NORMAL_OPERATION`, `EVENING_DEMAND_SURGE`, `SOLAR_CLOUD_DROP`, `WIND_LULL`, `IEX_PRICE_SPIKE`, `GRID_IMPORT_RESTRICTION`, `SWAP_INVENTORY_SHORTAGE`, `HEATWAVE_COMPOUND`, `COMBINED_MULTI_CITY_CRISIS`, `RECOVERY_AFTER_CRISIS`.
+

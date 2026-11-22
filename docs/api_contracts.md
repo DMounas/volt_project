@@ -1079,3 +1079,38 @@ Accept: application/json
   "provenance": "SYNTHETIC"
 }
 ```
+
+---
+
+## 17. Phase 6 Digital Twin & Closed-Loop Rolling MPC Endpoints
+
+### 17.1 `GET /api/v1/simulation/scenarios`
+Returns catalog of 10 configurable disturbance and crisis scenarios.
+
+### 17.2 `POST /api/v1/simulation/run`
+Executes closed-loop rolling MPC or benchmark simulation.
+
+**Request Payload:**
+```json
+{
+  "scenario_id": "HEATWAVE_COMPOUND",
+  "policy": "CLOSED_LOOP_MPC_P50",
+  "horizon_hours": 12,
+  "clusters": ["delhi_ncr", "mumbai_mmr", "bengaluru", "hyderabad", "chennai"],
+  "seed": 42,
+  "time_limit_per_step": 25.0,
+  "mip_gap": 0.01
+}
+```
+
+### 17.3 `GET /api/v1/simulation/runs/{run_id}/timeline`
+Returns step-by-step physical state and control action trajectory across the simulated horizon.
+
+### 17.4 `GET /api/v1/simulation/runs/{run_id}/explainability`
+Returns structured decision explanation records detailing binding constraints, procurement reasons, storage dispatch reasons, and tariff recommendations.
+
+### 17.5 `GET /api/v1/simulation/runs/{run_id}/comparison`
+Returns controlled benchmark comparison across BAU Baseline, Open-Loop MILP, and Closed-Loop MPC.
+
+### 17.6 `GET /api/v1/mpc/status`
+Returns controller health, preferred solver, and active reserve invariants.

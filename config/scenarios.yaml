@@ -1,0 +1,192 @@
+# VOLT Scenario & Shock Event Configuration (Phase 6)
+# Each scenario defines deterministic, reproducible disturbance profiles
+# applied across the 5 metro clusters: delhi_ncr, mumbai_mmr, bengaluru, hyderabad, chennai.
+#
+# Disturbance parameters:
+# - start_hour: integer (0-23)
+# - duration_hours: integer
+# - affected_clusters: list of cluster IDs or "ALL"
+# - multipliers:
+#     fast_charge_demand: float multiplier applied to actual demand
+#     swap_demand: float multiplier applied to actual swap demand
+#     solar_generation: float multiplier applied to actual solar output
+#     wind_generation: float multiplier applied to actual wind output
+#     iex_price: float multiplier applied to actual IEX price
+#     grid_import_cap_mw: float override for cluster grid import ceiling
+#     swap_bay_power_multiplier: float multiplier on charger bay replenishment capacity
+# - forecast_visibility:
+#     how much of the shock was anticipated in advance:
+#     - "ZERO_AHEAD" (sudden unannounced contingency)
+#     - "PARTIAL_AHEAD" (forecast model had 50% partial anticipation)
+#     - "FULL_AHEAD" (scheduled planned outage/event fully in forecast)
+
+scenarios:
+  - id: "NORMAL_OPERATION"
+    name: "Normal Operational Day"
+    description: "Nominal operational conditions across all five metro clusters with baseline demand and weather."
+    severity: "LOW"
+    start_hour: 0
+    duration_hours: 24
+    affected_clusters: ["ALL"]
+    forecast_visibility: "FULL_AHEAD"
+    multipliers:
+      fast_charge_demand: 1.0
+      swap_demand: 1.0
+      solar_generation: 1.0
+      wind_generation: 1.0
+      iex_price: 1.0
+      grid_import_cap_mw: 240.0
+      swap_bay_power_multiplier: 1.0
+
+  - id: "EVENING_DEMAND_SURGE"
+    name: "Evening Demand Surge"
+    description: "Localized +50% surge in commercial fast-charging demand across Delhi NCR and Mumbai MMR during evening commute."
+    severity: "MEDIUM"
+    start_hour: 17
+    duration_hours: 5
+    affected_clusters: ["delhi_ncr", "mumbai_mmr"]
+    forecast_visibility: "ZERO_AHEAD"
+    multipliers:
+      fast_charge_demand: 1.50
+      swap_demand: 1.25
+      solar_generation: 1.0
+      wind_generation: 1.0
+      iex_price: 1.15
+      grid_import_cap_mw: 240.0
+      swap_bay_power_multiplier: 1.0
+
+  - id: "SOLAR_CLOUD_DROP"
+    name: "Solar Cloud Cover Drop"
+    description: "Sudden convective cloud deck causing a -70% drop in solar generation between 11:00 and 14:00 in Delhi NCR and Bengaluru."
+    severity: "MEDIUM"
+    start_hour: 11
+    duration_hours: 4
+    affected_clusters: ["delhi_ncr", "bengaluru"]
+    forecast_visibility: "ZERO_AHEAD"
+    multipliers:
+      fast_charge_demand: 1.0
+      swap_demand: 1.0
+      solar_generation: 0.30
+      wind_generation: 0.90
+      iex_price: 1.20
+      grid_import_cap_mw: 240.0
+      swap_bay_power_multiplier: 1.0
+
+  - id: "WIND_LULL"
+    name: "Coastal Wind Generation Lull"
+    description: "Severe atmospheric wind lull dropping wind turbine output by -80% across coastal clusters (Chennai and Hyderabad)."
+    severity: "MEDIUM"
+    start_hour: 16
+    duration_hours: 7
+    affected_clusters: ["chennai", "hyderabad"]
+    forecast_visibility: "PARTIAL_AHEAD"
+    multipliers:
+      fast_charge_demand: 1.0
+      swap_demand: 1.0
+      solar_generation: 1.0
+      wind_generation: 0.20
+      iex_price: 1.30
+      grid_import_cap_mw: 240.0
+      swap_bay_power_multiplier: 1.0
+
+  - id: "IEX_PRICE_SPIKE"
+    name: "IEX Market Price Spike"
+    description: "Merchant wholesale DAM clearing price surges to CERC regulatory cap (₹10,000/MWh) during peak evening deficit (18:00-22:00)."
+    severity: "HIGH"
+    start_hour: 18
+    duration_hours: 5
+    affected_clusters: ["ALL"]
+    forecast_visibility: "ZERO_AHEAD"
+    multipliers:
+      fast_charge_demand: 1.0
+      swap_demand: 1.0
+      solar_generation: 1.0
+      wind_generation: 1.0
+      iex_price: 2.10
+      grid_import_cap_mw: 240.0
+      swap_bay_power_multiplier: 1.0
+
+  - id: "GRID_IMPORT_RESTRICTION"
+    name: "DISCOM Substation Feeder Curtailment"
+    description: "Substation transformer thermal derating restricts maximum DISCOM import capacity from 240 MW down to 120 MW in Mumbai MMR."
+    severity: "HIGH"
+    start_hour: 14
+    duration_hours: 8
+    affected_clusters: ["mumbai_mmr"]
+    forecast_visibility: "ZERO_AHEAD"
+    multipliers:
+      fast_charge_demand: 1.0
+      swap_demand: 1.0
+      solar_generation: 1.0
+      wind_generation: 1.0
+      iex_price: 1.10
+      grid_import_cap_mw: 120.0
+      swap_bay_power_multiplier: 1.0
+
+  - id: "SWAP_INVENTORY_SHORTAGE"
+    name: "Swap Pack Influx & Bay Maintenance"
+    description: "Heavy 2W/3W commercial fleet swap arrival (+60%) coinciding with 50% charging bay maintenance downtime in Bengaluru."
+    severity: "HIGH"
+    start_hour: 12
+    duration_hours: 6
+    affected_clusters: ["bengaluru"]
+    forecast_visibility: "PARTIAL_AHEAD"
+    multipliers:
+      fast_charge_demand: 1.0
+      swap_demand: 1.60
+      solar_generation: 1.0
+      wind_generation: 1.0
+      iex_price: 1.0
+      grid_import_cap_mw: 240.0
+      swap_bay_power_multiplier: 0.50
+
+  - id: "HEATWAVE_COMPOUND"
+    name: "Heatwave Compound Stress"
+    description: "Severe urban heatwave (+43°C): +35% fast-charging demand, -30% solar PV derating, and ₹9,500/MWh wholesale power price."
+    severity: "CRITICAL"
+    start_hour: 11
+    duration_hours: 9
+    affected_clusters: ["delhi_ncr", "hyderabad"]
+    forecast_visibility: "PARTIAL_AHEAD"
+    multipliers:
+      fast_charge_demand: 1.35
+      swap_demand: 1.20
+      solar_generation: 0.70
+      wind_generation: 0.85
+      iex_price: 1.85
+      grid_import_cap_mw: 220.0
+      swap_bay_power_multiplier: 0.85
+
+  - id: "COMBINED_MULTI_CITY_CRISIS"
+    name: "Combined Multi-City Grid Crisis"
+    description: "Simultaneous multi-city emergency: feeder restriction in Mumbai (120 MW), solar drop in Delhi (-60%), and wind lull in Chennai (-70%)."
+    severity: "CRITICAL"
+    start_hour: 13
+    duration_hours: 8
+    affected_clusters: ["delhi_ncr", "mumbai_mmr", "chennai"]
+    forecast_visibility: "ZERO_AHEAD"
+    multipliers:
+      fast_charge_demand: 1.25
+      swap_demand: 1.20
+      solar_generation: 0.40
+      wind_generation: 0.30
+      iex_price: 1.95
+      grid_import_cap_mw: 130.0
+      swap_bay_power_multiplier: 0.80
+
+  - id: "RECOVERY_AFTER_CRISIS"
+    name: "Crisis Recovery & Reserve Rebuild"
+    description: "Post-shock stabilization following acute evening deficit: restoring BESS SOC to >=50% and replenishing ready swap packs to >=70%."
+    severity: "MEDIUM"
+    start_hour: 20
+    duration_hours: 4
+    affected_clusters: ["ALL"]
+    forecast_visibility: "FULL_AHEAD"
+    multipliers:
+      fast_charge_demand: 0.90
+      swap_demand: 0.90
+      solar_generation: 1.0
+      wind_generation: 1.10
+      iex_price: 0.85
+      grid_import_cap_mw: 240.0
+      swap_bay_power_multiplier: 1.10

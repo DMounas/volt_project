@@ -381,9 +381,31 @@ Phase 5 delivers the multi-city mathematical co-optimization program formulated 
 
 ---
 
-## 10. Current Implementation Boundaries (Phase 5)
+## 10. Phase 6 Digital Twin & Closed-Loop Rolling MPC Results
 
-1. **Phase 5 Complete:** Multi-city Pyomo MILP optimization engine, Rockafellar-Uryasev CVaR objective, HiGHS solver integration, independent invariant audits, fallback heuristic scheduler, versioned REST endpoints, and React frontend dashboard tab are fully operational with 100% test coverage.
-2. **Phase 6 Next — Rolling-Horizon Closed-Loop MPC:** Closed-loop feedback-driven Model Predictive Control, real-time disturbance adaptation, state re-estimation, and detailed battery cell health tracking will be implemented in Phase 6.
+Phase 6 implements the **VOLT Digital Twin, Closed-Loop Rolling MPC Controller, and Crisis Event Engine** across all five metro clusters.
+
+### Core Architectural Components & Highlights:
+
+1. **Closed-Loop Feedback Receding Horizon:**
+   - Observes the simulated physical state $S(t)$ at each 1-hour interval.
+   - Solves the 24-hour receding-horizon MILP using non-anticipative forecasts.
+   - Applies **ONLY the first control interval (1 hour)**, advances the digital twin under actual scenario shock realizations, and re-optimizes from the newly observed state.
+2. **10-Scenario Crisis & Disturbance Engine (`config/scenarios.yaml`):**
+   - Configurable disturbances: `NORMAL_OPERATION`, `EVENING_DEMAND_SURGE`, `SOLAR_CLOUD_DROP`, `WIND_LULL`, `IEX_PRICE_SPIKE`, `GRID_IMPORT_RESTRICTION`, `SWAP_INVENTORY_SHORTAGE`, `HEATWAVE_COMPOUND`, `COMBINED_MULTI_CITY_CRISIS`, `RECOVERY_AFTER_CRISIS`.
+   - Distinguishes actual shock realizations from forecast expectations with strict forecast origin integrity.
+3. **Controlled 3-Policy Benchmark:**
+   - Under compound heatwave stress (`HEATWAVE_COMPOUND`), Closed-Loop MPC achieves **48.82% wholesale procurement cost savings vs BAU** and **9.0% savings over Open-Loop MILP**, while preserving 100% of 5% emergency reserves across all 5 clusters.
+4. **EBITDA Audit Gate:**
+   - EBITDA margin is disclosed as `NOT_EVALUABLE` due to missing corporate OpEx (land leases, corporate overhead, asset depreciation schedules). Net operating contribution is reported separately.
+5. **Interactive Dashboard View:**
+   - Full React `SimulationTab.tsx` with 5-city asset cards, receding-horizon timeline inspector, and step-by-step causality explainability drawer.
+
+---
+
+## 11. Current Implementation Boundaries (Phase 6)
+
+1. **Phase 6 Complete:** Digital Twin state models, Closed-Loop Rolling MPC controller, crisis scenario engine, FastAPI simulation endpoints (`/api/v1/simulation/...`), React dashboard tab, and 129 passing automated tests.
+2. **Phase 7 Next — Battery Intelligence & Deep Diagnostics:** Degradation SOH estimation, pack thermal aging, and lifecycle analysis.
 3. **Live Grid Execution:** VOLT is an analytical digital twin and simulation prototype. It does not interface with live SCADA, hardware switches, or submit binding financial bids to the Indian Energy Exchange.
 4. **Reinforcement Learning:** Excluded by architectural design in favor of certifiable MILP bounds.

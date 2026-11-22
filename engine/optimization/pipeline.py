@@ -201,6 +201,8 @@ class OptimizationPipeline:
         mode: OptimizationMode = OptimizationMode.DETERMINISTIC_P50,
         clusters: Optional[list[str]] = None,
         scenarios: Optional[list[ScenarioWeight]] = None,
+        custom_cluster_inputs: Optional[dict[str, ClusterHorizonInput]] = None,
+        custom_cohorts: Optional[list[ServiceCohort]] = None,
         time_limit_seconds: Optional[float] = None,
         mip_gap: Optional[float] = None,
         seed: int = 42,
@@ -210,13 +212,17 @@ class OptimizationPipeline:
         timeout = time_limit_seconds or self.time_limit
         gap = mip_gap or self.mip_gap
 
-        cache_key = f"{mode.value}:{','.join(target_clusters)}:{timeout}:{gap}:{seed}"
-        if cache_key in self._result_cache:
-            return self._result_cache[cache_key]
+        # Bypass cache when custom inputs are passed
+        if custom_cluster_inputs is None and custom_cohorts is None:
+            cache_key = f"{mode.value}:{','.join(target_clusters)}:{timeout}:{gap}:{seed}"
+            if cache_key in self._result_cache:
+                return self._result_cache[cache_key]
+        else:
+            cache_key = None
 
         # 1. Load inputs and cohorts
-        cluster_inputs = self.load_cluster_inputs(clusters=target_clusters)
-        cohorts = self.load_customer_cohorts(clusters=target_clusters, max_hours=24)
+        cluster_inputs = custom_cluster_inputs or self.load_cluster_inputs(clusters=target_clusters)
+        cohorts = custom_cohorts if custom_cohorts is not None else self.load_customer_cohorts(clusters=target_clusters, max_hours=24)
 
         # 3. Handle BAU baseline mode
         if mode == OptimizationMode.BAU_BASELINE:
@@ -226,7 +232,8 @@ class OptimizationPipeline:
                 reason="Business-as-Usual (BAU) heuristic dispatch evaluation",
                 run_id=f"BAU-{seed:04d}",
             )
-            self._result_cache[cache_key] = result
+            if cache_key is not None:
+                self._result_cache[cache_key] = result
             return result
 
         # 4. Setup scenarios
@@ -283,8 +290,11 @@ class OptimizationPipeline:
                 run_id=f"OPT-FALLBACK-{seed:04d}",
             )
             fallback_res.solver_metadata = solver_meta
+            fallback_res.solver_metadata.is_fallback = True
+            fallback_res.solver_metadata.solver_status = SolverStatus.FALLBACK_HEURISTIC
             fallback_res.mode = mode
-            self._result_cache[cache_key] = fallback_res
+            if cache_key is not None:
+                self._result_cache[cache_key] = fallback_res
             return fallback_res
 
         # 9. Extract and validate
@@ -297,5 +307,6 @@ class OptimizationPipeline:
             run_id=f"OPT-{mode.value[:3]}-{seed:04d}",
         )
 
-        self._result_cache[cache_key] = result
+        if cache_key is not None:
+            self._result_cache[cache_key] = result
         return result

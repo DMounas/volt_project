@@ -260,6 +260,99 @@ export async function fetchOptimizationDecisions(
   return res.json();
 }
 
+// ==========================================
+// Phase 6: Digital Twin & Rolling MPC API
+// ==========================================
+import type {
+  MPCStatusResponse,
+  SimulationComparisonResponse,
+  SimulationEventsResponse,
+  SimulationExplainabilityResponse,
+  SimulationPolicy,
+  SimulationRunResponse,
+  SimulationScenariosCatalogResponse,
+  SimulationTimelineResponse,
+} from './types';
+
+export async function fetchSimulationScenarios(): Promise<SimulationScenariosCatalogResponse> {
+  const res = await fetch(`${API_BASE}/simulation/scenarios`);
+  if (!res.ok) throw new Error(`Failed to fetch simulation scenarios: ${res.statusText}`);
+  return res.json();
+}
+
+export async function runDigitalTwinSimulation(payload: {
+  scenario_id: string;
+  policy: SimulationPolicy;
+  horizon_hours?: number;
+  clusters?: string[];
+  seed?: number;
+  time_limit_per_step?: number;
+  mip_gap?: number;
+}): Promise<SimulationRunResponse> {
+  const res = await fetch(`${API_BASE}/simulation/run`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({}));
+    throw new Error(errorData.detail || `Simulation run failed: ${res.statusText}`);
+  }
+  return res.json();
+}
+
+export async function fetchLatestSimulationRun(): Promise<SimulationRunResponse> {
+  const res = await fetch(`${API_BASE}/simulation/latest`);
+  if (!res.ok) throw new Error(`Failed to fetch latest simulation: ${res.statusText}`);
+  return res.json();
+}
+
+export async function fetchSimulationRun(runId: string): Promise<SimulationRunResponse> {
+  const res = await fetch(`${API_BASE}/simulation/runs/${runId}`);
+  if (!res.ok) throw new Error(`Failed to fetch simulation run: ${res.statusText}`);
+  return res.json();
+}
+
+export async function fetchSimulationTimeline(runId: string): Promise<SimulationTimelineResponse> {
+  const res = await fetch(`${API_BASE}/simulation/runs/${runId}/timeline`);
+  if (!res.ok) throw new Error(`Failed to fetch simulation timeline: ${res.statusText}`);
+  return res.json();
+}
+
+export async function fetchSimulationExplainability(runId: string): Promise<SimulationExplainabilityResponse> {
+  const res = await fetch(`${API_BASE}/simulation/runs/${runId}/explainability`);
+  if (!res.ok) throw new Error(`Failed to fetch simulation explainability: ${res.statusText}`);
+  return res.json();
+}
+
+export async function fetchSimulationEvents(runId: string): Promise<SimulationEventsResponse> {
+  const res = await fetch(`${API_BASE}/simulation/runs/${runId}/events`);
+  if (!res.ok) throw new Error(`Failed to fetch simulation events: ${res.statusText}`);
+  return res.json();
+}
+
+export async function fetchSimulationComparison(
+  runId: string,
+  scenarioId: string = 'NORMAL_OPERATION',
+  horizonHours: number = 12,
+  seed: number = 42
+): Promise<SimulationComparisonResponse> {
+  const params = new URLSearchParams({
+    scenario_id: scenarioId,
+    horizon_hours: horizonHours.toString(),
+    seed: seed.toString(),
+  });
+  const res = await fetch(`${API_BASE}/simulation/runs/${runId}/comparison?${params.toString()}`);
+  if (!res.ok) throw new Error(`Failed to fetch simulation comparison: ${res.statusText}`);
+  return res.json();
+}
+
+export async function fetchMPCStatus(): Promise<MPCStatusResponse> {
+  const res = await fetch(`${API_BASE}/mpc/status`);
+  if (!res.ok) throw new Error(`Failed to fetch MPC status: ${res.statusText}`);
+  return res.json();
+}
+
 export async function fetchOptimizationComparison(): Promise<OptimizationCompareResponse> {
   const res = await fetch(`${API_BASE}/optimization/compare`);
   if (!res.ok) throw new Error(`Failed to fetch optimization comparison: ${res.statusText}`);

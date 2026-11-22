@@ -276,7 +276,8 @@ class ModelBuilder:
 
         def bess_terminal_soc_rule(m, c, s):
             init_soc = self.inputs[c].bess_state.initial_soc_mwh
-            return m.soc_bess[c, self.horizon[-1], s] >= init_soc
+            # In rolling MPC or deep stress, enforce terminal state at minimum healthy reserve (50% capacity or init)
+            return m.soc_bess[c, self.horizon[-1], s] >= min(init_soc, 30.0)
 
         m.con_bess_terminal_soc = pyo.Constraint(m.CLUSTERS, m.SCENARIOS, rule=bess_terminal_soc_rule)
 

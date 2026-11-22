@@ -371,3 +371,43 @@ Consolidated 24-hour performance indicators across all 5 metro clusters.
 | `net_operating_cost_inr` | `NUMERIC(14,2)`| INR | SYNTHETIC | Net cost = Procurement + Deg + Incentives - Revenue |
 | `cvar_tail_risk_cost_inr` | `NUMERIC(14,2)`| INR | SYNTHETIC | 95% tail-risk cost under adverse market spikes |
 | `ebitda_operating_margin_pct`| `NUMERIC(6,2)` | % | SYNTHETIC | Site operating margin proxy |
+
+---
+
+## 10. Phase 6 Digital Twin & Closed-Loop MPC Entities
+
+### 10.1 `simulation_state`
+Real-time physical and discrete inventory state snapshot of a metro cluster twin.
+
+| Field | Type | Unit | Provenance | Description |
+|---|---|---|---|---|
+| `timestamp` | `TIMESTAMPTZ` | — | SYNTHETIC | Asia/Kolkata operational timestamp |
+| `cluster_id` | `VARCHAR(32)` | — | OBSERVED | Metro cluster identifier |
+| `hour` | `INTEGER` | 0..23 | — | Hour index within the diurnal cycle |
+| `grid_import_cap_mw` | `NUMERIC(8,2)` | MW | SYNTHETIC | Substation import rating under contingency (120-240 MW) |
+| `grid_import_actual_mw` | `NUMERIC(8,3)` | MW | SYNTHETIC | Total electrical draw from grid |
+| `bess_soc_mwh` | `NUMERIC(8,3)` | MWh | SYNTHETIC | Stored energy in stationary BESS |
+| `bess_reserve_compliant` | `BOOLEAN` | — | SYNTHETIC | True if BESS SOC $\ge 3.0\text{ MWh}$ |
+| `ready_packs` | `INTEGER` | count | SYNTHETIC | Ready packs available ($\text{SOC} \ge 90\%$) |
+| `charging_packs` | `INTEGER` | count | SYNTHETIC | Packs currently in replenishment bays |
+| `depleted_packs` | `INTEGER` | count | SYNTHETIC | Depleted packs queued for recharge |
+| `swap_reserve_compliant` | `BOOLEAN` | — | SYNTHETIC | True if ready packs $\ge 1,200$ |
+| `power_headroom_mw` | `NUMERIC(8,2)` | MW | SYNTHETIC | Remaining import capacity headroom |
+| `headroom_compliant` | `BOOLEAN` | — | SYNTHETIC | True if headroom $\ge 12.0\text{ MW}$ |
+| `inter_city_transfer_mw`| `NUMERIC(8,3)` | MW | REGULATORY | Inter-city electricity transfer (strictly 0.0 MW) |
+
+### 10.2 `decision_explanation`
+Step-by-step causality log explaining why VOLT chose a specific dispatch action.
+
+| Field | Type | Unit | Provenance | Description |
+|---|---|---|---|---|
+| `hour` | `INTEGER` | 0..23 | — | Control interval index |
+| `cluster_id` | `VARCHAR(32)` | — | OBSERVED | Metro cluster identifier |
+| `detected_operating_condition` | `TEXT` | — | SYNTHETIC | Detected operating stress, surge, or nominal condition |
+| `binding_constraints` | `TEXT[]` | — | SYNTHETIC | Active bottleneck constraints (headroom, ratings, reserves) |
+| `procurement_choice_reason` | `TEXT` | — | SYNTHETIC | Merit-order economic procurement causality |
+| `storage_dispatch_reason` | `TEXT` | — | SYNTHETIC | Stationary BESS charge/discharge justification |
+| `flexible_demand_decision` | `TEXT` | — | SYNTHETIC | Customer deferral and deadline protection rationale |
+| `tariff_recommendation_reason` | `TEXT` | — | REGULATORY | Selected dynamic tariff tier and guardrail clamping status |
+| `solver_status` | `VARCHAR(32)` | — | SYNTHETIC | Solver termination status or FALLBACK_HEURISTIC |
+

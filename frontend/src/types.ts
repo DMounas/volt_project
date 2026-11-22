@@ -653,3 +653,190 @@ export interface OptimizationScenariosCatalogResponse {
   alpha_confidence: number;
   provenance: Provenance;
 }
+
+// ==========================================
+// Phase 6: Digital Twin & Rolling MPC Types
+// ==========================================
+
+export type ShockScenarioType =
+  | 'NORMAL_OPERATION'
+  | 'EVENING_DEMAND_SURGE'
+  | 'SOLAR_CLOUD_DROP'
+  | 'WIND_LULL'
+  | 'IEX_PRICE_SPIKE'
+  | 'GRID_IMPORT_RESTRICTION'
+  | 'SWAP_INVENTORY_SHORTAGE'
+  | 'HEATWAVE_COMPOUND'
+  | 'COMBINED_MULTI_CITY_CRISIS'
+  | 'RECOVERY_AFTER_CRISIS';
+
+export type SimulationPolicy =
+  | 'BAU_BASELINE'
+  | 'OPEN_LOOP_P50'
+  | 'OPEN_LOOP_CVAR'
+  | 'CLOSED_LOOP_MPC_P50'
+  | 'CLOSED_LOOP_MPC_CVAR';
+
+export interface ScenarioItem {
+  id: string;
+  name: string;
+  description: string;
+  severity: string;
+  start_hour: number;
+  duration_hours: number;
+  affected_clusters: string[];
+  forecast_visibility: string;
+  multipliers: Record<string, any>;
+}
+
+export interface SimulationScenariosCatalogResponse {
+  scenarios: ScenarioItem[];
+  count: number;
+  provenance: Provenance;
+}
+
+export interface DigitalTwinKPIs {
+  service_reliability_pct: number;
+  fast_charge_fill_rate_pct: number;
+  swap_pack_fill_rate_pct: number;
+  swap_energy_fill_rate_pct: number;
+  emergency_service_violations_count: number;
+  priority_service_violations_count: number;
+  deadline_violations_count: number;
+  mean_waiting_time_minutes: number;
+  p95_waiting_time_minutes: number;
+  max_waiting_time_minutes: number;
+  deferred_energy_eventually_served_mwh: number;
+  deferred_energy_unserved_mwh: number;
+  total_energy_requested_mwh: number;
+  total_energy_served_mwh: number;
+  total_discom_energy_mwh: number;
+  total_iex_energy_mwh: number;
+  total_renewable_energy_mwh: number;
+  renewable_utilization_pct: number;
+  renewable_curtailment_mwh: number;
+  bess_throughput_mwh: number;
+  bess_final_soc_mwh: number;
+  swap_final_ready_packs: number;
+  total_losses_mwh: number;
+  energy_loss_pct: number;
+  energy_balance_residual_mwh: number;
+  reserve_violations_count: number;
+  procurement_cost_inr: number;
+  retail_tariff_revenue_inr: number;
+  flexibility_incentive_inr: number;
+  bess_degradation_cost_inr: number;
+  net_operating_contribution_inr: number;
+  ebitda_status: string;
+  forecast_mae_demand_mwh: number;
+  forecast_mae_renewable_mwh: number;
+  forecast_mae_price_inr: number;
+  mean_solve_time_seconds: number;
+  max_solve_time_seconds: number;
+  fallback_events_count: number;
+  cvar_tail_risk_cost_inr: number;
+}
+
+export interface EBITDAEvaluation {
+  status: string;
+  ebitda_margin_pct?: number | null;
+  missing_components: string[];
+  explanation: string;
+  provenance: Provenance;
+}
+
+export interface SimulationRunResponse {
+  run_id: string;
+  scenario_id: string;
+  policy: SimulationPolicy;
+  horizon_hours: number;
+  seed: number;
+  clusters: string[];
+  kpis: DigitalTwinKPIs;
+  ebitda: EBITDAEvaluation;
+  invariants_verified: Record<string, boolean>;
+  provenance: Provenance;
+  disclaimer: string;
+}
+
+export interface SimulationTimelineResponse {
+  run_id: string;
+  scenario_id: string;
+  policy: SimulationPolicy;
+  timeline: Array<{
+    hour: number;
+    timestamp: string;
+    is_fallback: boolean;
+    solver_status: string;
+    clusters: Record<string, any>;
+    actions: Record<string, any>;
+  }>;
+  provenance: Provenance;
+}
+
+export interface DecisionExplanation {
+  timestamp: string;
+  hour: number;
+  cluster_id: string;
+  detected_operating_condition: string;
+  binding_constraints: string[];
+  procurement_choice_reason: string;
+  storage_dispatch_reason: string;
+  flexible_demand_decision: string;
+  tariff_recommendation_reason: string;
+  headroom_reserve_status: string;
+  cost_decomposition: Record<string, number>;
+  solver_status: string;
+  is_fallback: boolean;
+  fallback_reason?: string | null;
+  provenance: Provenance;
+}
+
+export interface SimulationExplainabilityResponse {
+  run_id: string;
+  explanations: DecisionExplanation[];
+  provenance: Provenance;
+}
+
+export interface SimulationEventsResponse {
+  run_id: string;
+  scenario_id: string;
+  scenario_details: Record<string, any>;
+  provenance: Provenance;
+}
+
+export interface PolicyComparisonMetric {
+  policy: string;
+  service_reliability_pct: number;
+  energy_loss_pct: number;
+  renewable_share_pct: number;
+  total_energy_served_mwh: number;
+  procurement_cost_inr: number;
+  retail_revenue_inr: number;
+  net_operating_contribution_inr: number;
+  fallback_events_count: number;
+  ebitda_status: string;
+}
+
+export interface SimulationComparisonResponse {
+  run_id: string;
+  scenario_id: string;
+  horizon_hours: number;
+  policies: Record<string, PolicyComparisonMetric>;
+  cost_saving_mpc_vs_bau_pct: number;
+  service_uplift_mpc_vs_bau_pct: number;
+  loss_reduction_mpc_vs_bau_pct: number;
+  ebitda_disclosure: EBITDAEvaluation;
+  provenance: Provenance;
+}
+
+export interface MPCStatusResponse {
+  controller_status: string;
+  preferred_solver: string;
+  available_solvers: string[];
+  default_horizon_hours: number;
+  control_step_hours: number;
+  receding_horizon: boolean;
+  invariants_enforced: string[];
+  timestamp: string;
+}
