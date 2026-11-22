@@ -27,6 +27,12 @@ export const ProvenanceBadge: React.FC<Props> = ({ provenance, label, className 
       border: 'border-purple-700/60',
       desc: 'Generated disturbance profile',
     },
+    SYNTHETIC_CALIBRATION: {
+      bg: 'bg-indigo-950/70',
+      text: 'text-indigo-300',
+      border: 'border-indigo-700/60',
+      desc: 'Bounded calibration against case benchmarks',
+    },
   };
 
   const current = styles[provenance] || styles.ASSUMED;

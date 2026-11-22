@@ -168,3 +168,30 @@ Evaluation results comparing baseline and optimized policies.
 | `value` | `NUMERIC(8,4)` | percent / INR | SYNTHETIC | Realized simulated value |
 | `baseline_reference` | `NUMERIC(8,4)` | percent / INR | OBSERVED | Case baseline reference (e.g., 78.0%, 10.0%) |
 | `target_value` | `NUMERIC(8,4)` | percent / INR | OBSERVED | Case business target (e.g., 89.7%, 8.0%, >12.0%) |
+
+---
+
+## 6. Energy Reconciliation & Manifest Entities (Phase 2)
+
+### 6.1 `energy_balance_record`
+Auditable meter-boundary reconciliation for each cluster and hourly simulation step.
+
+| Field | Type | Unit | Provenance | Description |
+|---|---|---|---|---|
+| `timestamp` | `TIMESTAMPTZ` | — | SYNTHETIC | Simulation interval start time |
+| `cluster_id` | `VARCHAR(32)` | — | OBSERVED | Target regional cluster |
+| `renewable_used_mwh` | `NUMERIC(10,4)` | MWh | SYNTHETIC | Solar/wind energy consumed directly by station loads |
+| `discom_import_mwh` | `NUMERIC(10,4)` | MWh | SYNTHETIC | Baseload import from utility DISCOM grid |
+| `iex_import_mwh` | `NUMERIC(10,4)` | MWh | SYNTHETIC | Day-ahead / real-time merchant energy import |
+| `bess_discharge_mwh` | `NUMERIC(10,4)` | MWh | SYNTHETIC | Energy discharged from stationary BESS into switchgear |
+| `total_supply_mwh` | `NUMERIC(10,4)` | MWh | SYNTHETIC | Total supply: `renewable_used + discom + iex + bess_discharge` |
+| `fast_charge_input_mwh` | `NUMERIC(10,4)` | MWh | SYNTHETIC | AC electrical energy drawn by DC fast chargers |
+| `swap_pack_charge_input_mwh` | `NUMERIC(10,4)` | MWh | SYNTHETIC | Electrical energy drawn by battery swap charging bays |
+| `bess_charge_mwh` | `NUMERIC(10,4)` | MWh | SYNTHETIC | Electrical energy drawn to charge stationary BESS |
+| `auxiliary_load_mwh` | `NUMERIC(10,4)` | MWh | SYNTHETIC | Station HVAC, lighting, telemetry, and control loads |
+| `distribution_loss_mwh` | `NUMERIC(10,4)` | MWh | SYNTHETIC | Substation transformer and bus distribution losses |
+| `total_demand_mwh` | `NUMERIC(10,4)` | MWh | SYNTHETIC | Total electrical demand across all loads and losses |
+| `fast_charge_delivered_mwh` | `NUMERIC(10,4)` | MWh | SYNTHETIC | Metered DC energy delivered to EV batteries |
+| `swap_energy_equivalent_delivered_mwh` | `NUMERIC(10,4)` | MWh | SYNTHETIC | Usable energy (2.25 kWh/pack) issued to swapping customers |
+| `residual_abs_mwh` | `NUMERIC(10,5)` | MWh | SYNTHETIC | Absolute conservation residual: `\|total_supply - total_demand\|` |
+| `is_reconciled` | `BOOLEAN` | — | SYNTHETIC | True if `residual_abs_mwh <= 0.005 MWh` |

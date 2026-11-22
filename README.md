@@ -26,6 +26,7 @@ VOLT enforces strict provenance tracking across every parameter:
 - **`OBSERVED`**: Real-world facts directly extracted from the project case study.
 - **`ASSUMED`**: Explicit, configurable engineering assumptions with sensitivity ranges.
 - **`SYNTHETIC`**: Algorithmically generated disturbance profiles for stress testing.
+- **`SYNTHETIC_CALIBRATION`**: Empirically calibrated simulation parameters tuned within bounded physical ranges to reproduce historical reference metrics without metric forcing.
 
 | Metric / Parameter | Value / Range | Provenance | Specification Treatment |
 |---|---|---|---|
@@ -86,39 +87,56 @@ volt/
 ├── docker-compose.yml                 # PostgreSQL & container services
 ├── configs/
 │   ├── case_study.yaml                # Source-provided case facts ONLY
-│   ├── assumptions.yaml               # Unknown parameters, rationale & sensitivity bounds
+│   ├── assumptions.yaml               # Unknown parameters, rationale, bounds & calibrated values
 │   ├── scenarios.yaml                 # Disturbance scenarios (NORMAL, CRISIS, etc.)
 │   └── model.yaml                     # MPC temporal & solver configuration
+├── data/
+│   └── synthetic/                     # Generated 5-city compressed datasets & manifest
+│       ├── cluster_hourly.csv.gz       # 219,120 rows across 5 clusters (2022-2026)
+│       ├── iex_dam_15min.csv.gz        # 876,480 rows 15-minute IEX DAM market data
+│       ├── battery_pack_hourly.csv.gz  # 219,120 rows battery pack inventory tracking
+│       ├── customer_requests.csv.gz    # Representative hourly charging requests
+│       ├── swap_events.csv.gz          # Hourly swap events and pack transitions
+│       └── data_manifest.json          # Integrity hashes, row counts, and date bounds
 ├── backend/
 │   ├── Dockerfile
 │   ├── app/
-│   │   ├── main.py                    # FastAPI application
-│   │   ├── api/routes/                # Endpoints (/health, /case, /clusters, /scenarios)
-│   │   ├── schemas/                   # Pydantic schemas with provenance
-│   │   ├── services/                  # Configuration loading & validation service
+│   │   ├── main.py                    # FastAPI application with Phase 1 & 2 routes
+│   │   ├── api/routes/                # Endpoints (/health, /case, /clusters, /scenarios, /data, /baseline)
+│   │   ├── schemas/                   # Pydantic schemas with provenance tracking
+│   │   ├── services/                  # Configuration & synthetic data services
 │   │   └── db/                        # PostgreSQL connection pool & session manager
 │   └── tests/                         # Backend API & service tests
 ├── engine/
-│   ├── provenance.py                  # Provenance enum (OBSERVED, ASSUMED, SYNTHETIC)
+│   ├── provenance.py                  # Provenance enum (OBSERVED, ASSUMED, SYNTHETIC, SYNTHETIC_CALIBRATION)
 │   ├── units.py                       # Unit conversion utilities (MW, MWh, kWh, INR)
 │   ├── validation.py                  # Physical constraint validators
-│   ├── data/                          # Data loaders & IEX adapters
+│   ├── data/                          # Synthetic data generator & 15-min IEX adapters
+│   │   ├── synthetic_generator.py     # Deterministic 5-city vectorized synthetic data generator
+│   │   └── iex_adapter.py             # IEX 15-min to hourly weighted aggregation adapter
 │   ├── forecasting/                   # Demand, price & renewable forecasters
 │   ├── scenarios/                     # Multi-vector scenario generator
 │   ├── customer/                      # Customer flexibility & incentive bounds
 │   ├── batteries/                     # Separate BESS and swap pack models
 │   ├── optimization/                  # MILP formulation & solver interfaces
 │   ├── control/                       # Rolling-horizon MPC loop
-│   ├── simulation/                    # Digital-twin discrete simulator
-│   ├── metrics/                       # Case KPI calculators
+│   ├── simulation/                    # Digital-twin discrete simulator & baseline policy
+│   │   ├── baseline_policy.py         # Business-as-Usual (BAU) heuristic dispatch policy
+│   │   └── baseline_calibration.py    # Bounded parameter search against reference KPIs
+│   ├── metrics/                       # Energy reconciliation, reliability & loss audits
+│   │   └── reconciliation.py          # Strict meter-boundary energy balance auditor
 │   └── tests/                         # Engine unit & validation tests
-├── frontend/                          # React + TypeScript dashboard (Vite)
-├── scripts/                           # Utility scripts placeholder
-├── reports/                           # Simulation reports & export artifacts
+├── frontend/                          # React + TypeScript dashboard (Vite + TailwindCSS)
+├── scripts/
+│   ├── generate_synthetic_data.py     # CLI to generate reproducible 5-city dataset
+│   └── run_baseline_calibration.py    # CLI to calibrate BAU policy to 78% reliability & 10% losses
+├── reports/
+│   ├── phase2_data_quality.md         # Synthetic data quality audit and integrity hashes
+│   └── phase2_baseline_calibration.md # Calibration residuals and meter reconciliation report
 └── docs/
-    ├── data_dictionary.md             # Logical entity schemas
-    ├── assumptions_register.md        # Register of all unsupplied assumptions
-    └── api_contracts.md               # API endpoint specifications
+    ├── data_dictionary.md             # Logical entity schemas & energy balance records
+    ├── assumptions_register.md        # Register of all unsupplied assumptions & calibrated params
+    └── api_contracts.md               # API endpoint specifications (v1 to v8)
 ```
 
 ---
@@ -136,33 +154,86 @@ volt/
 cp .env.example .env
 ```
 
-### Step 2: Running Backend Tests
+### Step 2: Generate Synthetic Datasets
+Generate the complete 5-year, 5-city dataset (2022-01-01 to 2026-12-31, 219,120 cluster-hours):
+```powershell
+# Full 5-year dataset generation (deterministic, gzip-compressed)
+python scripts/generate_synthetic_data.py --full
+
+# Or quick demo dataset (30 days):
+python scripts/generate_synthetic_data.py --demo
+```
+
+### Step 3: Run Baseline Policy & Bounded Calibration
+Calibrate the physical dispatch simulation to reproduce the historical reference conditions (78.0% reliability, 10.0% losses):
+```powershell
+python scripts/run_baseline_calibration.py
+```
+
+### Step 4: Run Tests
 From the project root:
 ```powershell
 python -m pytest
 ```
-Output confirms all 20 tests pass across engine units, physical validations, and API routes.
+Output confirms all 42 tests pass across engine units, physical validations, synthetic generator, IEX adapter, BAU policy, energy reconciliation, and backend API routes.
 
-### Step 3: Running the Backend
+### Step 5: Running the Backend
 From the project root:
 ```powershell
 python -m uvicorn backend.app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 Interactive Swagger docs available at: `http://localhost:8000/docs`
 
-### Step 4: Running the Frontend
+Key API routes available:
+- `GET /api/v1/health` — System status and PostgreSQL connection
+- `GET /api/v1/config/case` — Source-provided case parameters
+- `GET /api/v1/data/manifest` — Data integrity manifest and file checksums
+- `GET /api/v1/data/summary` — Aggregate statistics across all 5 clusters
+- `GET /api/v1/data/iex/diagnostics` — IEX 15-min adapter validation diagnostics
+- `GET /api/v1/baseline/calibration` — Calibration parameters and residuals
+- `GET /api/v1/baseline/simulation` — Simulated hourly dispatch and energy balance
+
+### Step 6: Running the Frontend
 ```powershell
 cd frontend
 npm install
 npm run dev
 ```
-Open `http://localhost:5173` in your browser.
+Open `http://localhost:5173` in your browser to inspect the interactive digital twin dashboard.
 
 ---
 
-## 6. Current Implementation Limitations (Phase 1)
+## 6. Phase 2 Calibration & Verification Summary
 
-1. **Optimization Models**: No MILP models are solved in Phase 1; solver settings and problem formulation are defined as configurable specifications for Phase 5.
-2. **Forecast Models**: Forecasters are defined via runtime protocols; synthetic training pipelines are scheduled for Phase 3.
-3. **Live Grid Execution**: VOLT does not connect to live grid infrastructure or place binding orders on the Indian Energy Exchange.
-4. **Target Feasibility**: Stated business targets (89.7% reliability, 8.0% losses, >12% EBITDA) are business benchmarks to be evaluated during simulation, not guaranteed outcomes.
+### Bounded Baseline Calibration Results
+Calibration was executed via bounded grid search over physical operational parameters without any post-hoc metric forcing or KPI overrides:
+
+| Metric | Reference Baseline | Measured Simulated | Residual | Status |
+|---|---|---|---|---|
+| **Service Reliability** | 78.00% (`OBSERVED`) | **78.40%** | +0.40% | **PASSED** (within &plusmn;1.5% bound) |
+| **Energy Losses** | 10.00% (`OBSERVED`) | **10.18%** | +0.18% | **PASSED** (within &plusmn;0.8% bound) |
+| **Cumulative Residual** | — | **0.58%** | — | Optimal calibrated configuration |
+
+**Calibrated Physical Parameters (`SYNTHETIC_CALIBRATION`):**
+- Station Availability Factor: `0.800` (80.0% average uptime)
+- Charger Efficiency: `0.935` (93.5% AC-DC conversion efficiency)
+- Swap Charging Efficiency: `0.900` (90.0% pack recharge efficiency)
+- Auxiliary Station Load: `0.020` (2.0% base facility parasitic load)
+- Distribution Loss Factor: `0.012` (1.2% internal distribution losses)
+
+### Energy Reconciliation Audit
+- **Audited Time Steps:** 3,600 cluster-hours across all 5 clusters.
+- **Balance Audit Pass Rate:** **100.0%** (3,600 / 3,600).
+- **Maximum Balance Residual:** **0.00010 MWh** (0.0011% relative tolerance, well below the 0.01% threshold).
+- **Double-Counting Verification:** Swap energy delivered to EV batteries ($E_{\text{swap,delivered}}$) is strictly decoupled from subsequent pack replenishment energy ($E_{\text{swap,charge}}$).
+
+---
+
+## 7. Current Implementation Boundaries (Phase 2)
+
+1. **Forecasting Models (Phase 3):** LightGBM/CatBoost quantile forecasters and neural temporal models are deferred to Phase 3. Forecasters are currently stubbed via runtime protocols.
+2. **Dynamic Tariffs & Flexibility (Phase 4):** Customer flexibility response models and price-elastic demand shifting will be integrated in Phase 4.
+3. **MILP Mathematical Optimization (Phase 5):** The dispatch in Phase 2 utilizes a deterministic heuristic Business-as-Usual (BAU) baseline. Pyomo MILP optimization and CVaR risk formulation will be implemented in Phase 5.
+4. **Rolling-Horizon MPC (Phase 6):** Feedback-driven rolling-horizon closed-loop MPC orchestration is scheduled for Phase 6.
+5. **Live Grid Execution:** VOLT is an analytical digital twin and simulation prototype. It does not interface with live SCADA, hardware switches, or submit binding financial bids to the Indian Energy Exchange.
+6. **Target Feasibility:** Stated business targets (89.7% reliability, 8.0% losses, >12% EBITDA) are long-term business goals evaluated during optimized simulation, not baseline achievements.

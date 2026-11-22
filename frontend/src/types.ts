@@ -1,4 +1,4 @@
-export type Provenance = 'OBSERVED' | 'ASSUMED' | 'SYNTHETIC';
+export type Provenance = 'OBSERVED' | 'ASSUMED' | 'SYNTHETIC' | 'SYNTHETIC_CALIBRATION';
 
 export interface MetricItem {
   value: number;
@@ -164,4 +164,65 @@ export interface HealthResponse {
   timestamp: string;
   database: string;
   environment: string;
+}
+
+// Phase 2 Types
+export interface FileInfo {
+  path: string;
+  row_count: number;
+  size_bytes: number;
+  sha256: string;
+  description: string;
+}
+
+export interface DataManifestResponse {
+  manifest_version: string;
+  generator_version: string;
+  provenance: Provenance;
+  random_seed: number;
+  demo_mode: boolean;
+  date_range: {
+    start: string;
+    end: string;
+    total_hours_per_cluster: number;
+    total_cluster_hours: number;
+    timezone: string;
+  };
+  clusters: string[];
+  config_hashes: Record<string, string>;
+  files: Record<string, FileInfo>;
+  methodology_disclaimer: string;
+}
+
+export interface BaselineCalibrationResponse {
+  target_service_reliability_pct: number;
+  target_energy_loss_pct: number;
+  measured_service_reliability_pct: number;
+  measured_energy_loss_pct: number;
+  residual_reliability_pct: number;
+  residual_loss_pct: number;
+  total_objective_error: number;
+  calibrated_parameters: Record<string, any>;
+  parameter_bounds: Record<string, any>;
+  calibration_sample_hours: number;
+  energy_reconciliation_pass_rate_pct: number;
+  max_energy_residual_mwh: number;
+  status: string;
+  provenance: string;
+  notes: string;
+}
+
+export interface IEXDiagnosticsResponse {
+  total_15min_records_read: number;
+  total_hours_produced: number;
+  aggregation_method_used: string;
+  complete_hours_count: number;
+  incomplete_hours_count: number;
+  duplicate_blocks_count: number;
+  out_of_order_blocks_count: number;
+  missing_blocks_details: Array<Record<string, any>>;
+  min_hourly_price_inr_mwh: number;
+  max_hourly_price_inr_mwh: number;
+  mean_hourly_price_inr_mwh: number;
+  provenance: Provenance;
 }

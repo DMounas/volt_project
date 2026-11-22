@@ -1,0 +1,65 @@
+{
+  "manifest_version": "1.0.0",
+  "generator_version": "1.0.0",
+  "provenance": "SYNTHETIC",
+  "random_seed": 42,
+  "demo_mode": false,
+  "date_range": {
+    "start": "2022-01-01T00:00:00+05:30",
+    "end": "2026-12-31T23:00:00+05:30",
+    "total_hours_per_cluster": 43824,
+    "total_cluster_hours": 219120,
+    "timezone": "Asia/Kolkata"
+  },
+  "clusters": [
+    "delhi_ncr",
+    "mumbai_mmr",
+    "bengaluru",
+    "hyderabad",
+    "chennai"
+  ],
+  "config_hashes": {
+    "case_study.yaml": "87f2a52f1375a7280e4b3ffdf2f5f5b84ba1ae478a97adc82e0a124eeb0d85ca",
+    "assumptions.yaml": "f518032e0e7cf14c0f7612c79022319c24b4aff50e4618fb3697fd7044fe2669",
+    "scenarios.yaml": "c866c435b5ee0c8d427b038be5fa729f4e2396a531dbf2c532b1517ae40ca778",
+    "model.yaml": "76f1a5197f2bc2a0f359d9db94f53f8f006ca75bf428687859aa8ca233e82b25"
+  },
+  "files": {
+    "cluster_hourly.csv.gz": {
+      "path": "cluster_hourly.csv.gz",
+      "row_count": 219120,
+      "size_bytes": 7892212,
+      "sha256": "cae00d561ed1c7d9f8ead3b8538ba7d22629699a010b514a76cee9814d145343",
+      "description": "Hourly weather, EV fast-charge, swap demand, and renewable availability by cluster"
+    },
+    "iex_dam_15min.csv.gz": {
+      "path": "iex_dam_15min.csv.gz",
+      "row_count": 175296,
+      "size_bytes": 1976763,
+      "sha256": "5aaf728f18a33da7edf4b860fed6bd6916c7324245ee7e21357a2bd4c1cdc8c2",
+      "description": "15-minute Indian Energy Exchange Day-Ahead Market prices and cleared trading volumes"
+    },
+    "battery_pack_hourly.csv.gz": {
+      "path": "battery_pack_hourly.csv.gz",
+      "row_count": 219120,
+      "size_bytes": 1953293,
+      "sha256": "06c6e9bf8027d86426026f27a41835439f3288133f691d2e7387e1ab1cd910c8",
+      "description": "Hourly BESS SOC, swap pack inventory cohorts, degradation, and reserve status"
+    },
+    "customer_requests.csv.gz": {
+      "path": "customer_requests.csv.gz",
+      "row_count": 35000,
+      "size_bytes": 688067,
+      "sha256": "7ae6b2095e35d1f22777d4d5c01bea595003bd6196782f0496243e826766006e",
+      "description": "Event-level fast-charging and swap service requests with flexibility windows"
+    },
+    "swap_events.csv.gz": {
+      "path": "swap_events.csv.gz",
+      "row_count": 30000,
+      "size_bytes": 405257,
+      "sha256": "007741cf1723b16a3892e558814f4a83662c5ca504924b8ab4fbb3bef082c3e5",
+      "description": "Event-level battery swap transactions and battery SOC dispensed/returned"
+    }
+  },
+  "methodology_disclaimer": "All records in this dataset are algorithmically generated and strictly classified as SYNTHETIC. Do not present or cite these data as real historical company records, actual IEX market observations, or observed battery telemetry."
+}

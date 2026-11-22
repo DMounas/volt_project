@@ -120,3 +120,19 @@ This document lists every unknown parameter, the engineering rationale for its b
 - **Unit:** boolean (`false`).
 - **Provenance:** `ASSUMED`.
 - **Rationale:** Clusters are geographically separated by hundreds of kilometers across state borders with distinct DISCOMs and regional grid interconnections. Power wheeling cannot be physically commanded by the local operator.
+
+### 2.8 Reconstructed BAU Baseline Calibration Parameters
+- **Case Status:** Operational heuristics not provided by operator.
+- **Provenance:** `SYNTHETIC_CALIBRATION`.
+- **Target References:** 78.0% Service Reliability, 10.0% Energy Losses.
+- **Calibrated Values:**
+  * `station_availability_factor`: 0.80 (Allowed bounds: [0.72, 0.88])
+  * `charger_efficiency`: 0.935 (Allowed bounds: [0.90, 0.95])
+  * `swap_charge_efficiency`: 0.900 (Allowed bounds: [0.86, 0.93])
+  * `auxiliary_load_pct`: 0.020 (Allowed bounds: [0.015, 0.040])
+  * `distribution_loss_pct`: 0.012 (Allowed bounds: [0.010, 0.025])
+- **Calibration Residuals:**
+  * Measured Reliability: 78.40% (Residual: +0.40%)
+  * Measured Losses: 10.18% (Residual: +0.18%)
+  * Total Objective Error: 0.58%
+- **Rationale:** Calibrated via bounded parameter optimization to reconstruct incumbent performance without post-hoc forcing or metric overriding.

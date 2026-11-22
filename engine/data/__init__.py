@@ -8,6 +8,8 @@ Responsibilities:
 """
 
 from typing import Any, Protocol, runtime_checkable
+from engine.data.iex_adapter import IEXAdapterDiagnostics, IEXMarketAdapter
+from engine.data.synthetic_generator import SyntheticDataGenerator
 from engine.provenance import Provenance
 
 
@@ -22,3 +24,11 @@ class DataLoaderProtocol(Protocol):
     def get_provenance(self) -> Provenance:
         """Return the provenance class of the dataset."""
         ...
+
+
+__all__ = [
+    "DataLoaderProtocol",
+    "SyntheticDataGenerator",
+    "IEXMarketAdapter",
+    "IEXAdapterDiagnostics",
+]

@@ -1,11 +1,27 @@
 import React, { useEffect, useState } from 'react';
-import { fetchCaseConfig, fetchClusters, fetchHealth, fetchScenarios } from './api';
+import {
+  fetchBaselineCalibration,
+  fetchCaseConfig,
+  fetchClusters,
+  fetchDataManifest,
+  fetchHealth,
+  fetchIEXDiagnostics,
+  fetchScenarios,
+} from './api';
 import { ComingSoonTab } from './components/ComingSoonTab';
 import { Header } from './components/Header';
 import { Navigation } from './components/Navigation';
 import type { TabKey } from './components/Navigation';
 import { OverviewTab } from './components/OverviewTab';
-import type { CaseConfigResponse, ClustersResponse, HealthResponse, ScenariosResponse } from './types';
+import type {
+  BaselineCalibrationResponse,
+  CaseConfigResponse,
+  ClustersResponse,
+  DataManifestResponse,
+  HealthResponse,
+  IEXDiagnosticsResponse,
+  ScenariosResponse,
+} from './types';
 
 export const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabKey>('overview');
@@ -13,6 +29,9 @@ export const App: React.FC = () => {
   const [caseConfig, setCaseConfig] = useState<CaseConfigResponse | null>(null);
   const [clustersData, setClustersData] = useState<ClustersResponse | null>(null);
   const [scenariosData, setScenariosData] = useState<ScenariosResponse | null>(null);
+  const [manifest, setManifest] = useState<DataManifestResponse | null>(null);
+  const [calibration, setCalibration] = useState<BaselineCalibrationResponse | null>(null);
+  const [iexDiag, setIexDiag] = useState<IEXDiagnosticsResponse | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -23,20 +42,14 @@ export const App: React.FC = () => {
       setLoading(true);
       setError(null);
       try {
-        const [h, c, cl, sc] = await Promise.all([
+        const [h, c, cl, sc, m, cal, iex] = await Promise.all([
           fetchHealth().catch(() => null),
-          fetchCaseConfig().catch((e) => {
-            console.warn('Could not load case config from API:', e);
-            return null;
-          }),
-          fetchClusters().catch((e) => {
-            console.warn('Could not load clusters from API:', e);
-            return null;
-          }),
-          fetchScenarios().catch((e) => {
-            console.warn('Could not load scenarios from API:', e);
-            return null;
-          }),
+          fetchCaseConfig().catch(() => null),
+          fetchClusters().catch(() => null),
+          fetchScenarios().catch(() => null),
+          fetchDataManifest().catch(() => null),
+          fetchBaselineCalibration().catch(() => null),
+          fetchIEXDiagnostics().catch(() => null),
         ]);
 
         if (isMounted) {
@@ -44,6 +57,9 @@ export const App: React.FC = () => {
           setCaseConfig(c);
           setClustersData(cl);
           setScenariosData(sc);
+          setManifest(m);
+          setCalibration(cal);
+          setIexDiag(iex);
           setLoading(false);
         }
       } catch (err: any) {
@@ -77,6 +93,9 @@ export const App: React.FC = () => {
             caseConfig={caseConfig}
             clustersData={clustersData}
             scenariosData={scenariosData}
+            manifest={manifest}
+            calibration={calibration}
+            iexDiag={iexDiag}
           />
         ) : (
           <ComingSoonTab tab={activeTab} />
@@ -88,12 +107,12 @@ export const App: React.FC = () => {
           <div className="volt-footer-col">
             <span className="font-bold text-gray-200">VOLT Orchestration Platform</span>
             <span className="text-gray-400 text-xs">
-              Virtual Orchestration of Load, Tariffs & Energy • Phase 1 Baseline
+              Virtual Orchestration of Load, Tariffs & Energy • Phase 2 Verified Baseline
             </span>
           </div>
           <div className="volt-footer-col text-right">
             <span className="text-xs text-gray-400">
-              Provenance Rules: OBSERVED (Case Facts) • ASSUMED (Model Inputs) • SYNTHETIC (Disturbances)
+              Provenance Rules: OBSERVED (Case Facts) • ASSUMED (Model Inputs) • SYNTHETIC (Disturbances) • SYNTHETIC_CALIBRATION (BAU)
             </span>
             <span className="text-xs text-gray-500">Decision-Support Prototype • Asia/Kolkata</span>
           </div>

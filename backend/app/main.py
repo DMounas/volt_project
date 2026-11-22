@@ -9,7 +9,15 @@ import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from backend.app.api.routes import case_router, clusters_router, health_router, scenarios_router
+from backend.app.api.routes import (
+    baseline_router,
+    case_router,
+    clusters_router,
+    data_router,
+    health_router,
+    iex_router,
+    scenarios_router,
+)
 
 app_name = os.getenv("APP_NAME", "VOLT — Virtual Orchestration of Load, Tariffs & Energy")
 app_version = os.getenv("APP_VERSION", "0.1.0")
@@ -49,6 +57,9 @@ app.include_router(health_router, prefix=api_v1_prefix)
 app.include_router(case_router, prefix=api_v1_prefix)
 app.include_router(clusters_router, prefix=api_v1_prefix)
 app.include_router(scenarios_router, prefix=api_v1_prefix)
+app.include_router(data_router, prefix=api_v1_prefix)
+app.include_router(iex_router, prefix=api_v1_prefix)
+app.include_router(baseline_router, prefix=api_v1_prefix)
 
 
 @app.get("/", tags=["Root"])
