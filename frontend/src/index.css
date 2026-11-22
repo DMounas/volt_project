@@ -1,0 +1,675 @@
+@charset "UTF-8";
+
+:root {
+  --bg-primary: #0a0e17;
+  --bg-secondary: #111827;
+  --bg-tertiary: #1a2234;
+  --bg-card: #0f172a;
+  --border-color: #1e293b;
+  --border-highlight: #334155;
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --accent-cyan: #06b6d4;
+  --accent-blue: #3b82f6;
+  --accent-emerald: #10b981;
+  --accent-amber: #f59e0b;
+  --accent-purple: #a855f7;
+  --accent-rose: #f43f5e;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* App container */
+.volt-app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header */
+.volt-header {
+  background: linear-gradient(180deg, #131b2e 0%, var(--bg-primary) 100%);
+  border-bottom: 1px solid var(--border-color);
+  padding: 1.25rem 2rem;
+}
+
+.volt-header-inner {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.volt-brand {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.volt-logo-icon {
+  font-size: 2rem;
+  background: radial-gradient(circle, rgba(6, 182, 212, 0.2) 0%, rgba(15, 23, 42, 0) 70%);
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  border: 1px solid rgba(6, 182, 212, 0.3);
+}
+
+.volt-title-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.volt-main-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  color: #ffffff;
+}
+
+.volt-badge-prototype {
+  background: rgba(6, 182, 212, 0.15);
+  color: var(--accent-cyan);
+  border: 1px solid rgba(6, 182, 212, 0.4);
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+
+.volt-subtitle {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-top: 0.2rem;
+}
+
+.volt-header-meta {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.volt-status-pill {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--bg-secondary);
+  padding: 0.35rem 0.75rem;
+  border-radius: 9999px;
+  border: 1px solid var(--border-color);
+  font-size: 0.8rem;
+}
+
+.volt-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.volt-indicator-live {
+  background-color: var(--accent-emerald);
+  box-shadow: 0 0 8px var(--accent-emerald);
+}
+
+.volt-indicator-loading {
+  background-color: var(--accent-amber);
+}
+
+.volt-indicator-offline {
+  background-color: var(--accent-rose);
+}
+
+.volt-meta-item {
+  display: flex;
+  gap: 0.35rem;
+  font-size: 0.8rem;
+}
+
+.volt-meta-label {
+  color: var(--text-muted);
+}
+
+.volt-meta-value {
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+/* Navigation */
+.volt-nav {
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-color);
+  padding: 0 2rem;
+}
+
+.volt-nav-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+}
+
+.volt-tab-btn {
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text-secondary);
+  padding: 0.85rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.2rem;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.volt-tab-btn:hover {
+  color: var(--text-primary);
+  border-bottom-color: var(--border-highlight);
+}
+
+.volt-tab-btn.volt-tab-active {
+  color: var(--accent-cyan);
+  border-bottom-color: var(--accent-cyan);
+}
+
+.volt-tab-phase {
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.volt-phase-current {
+  color: var(--accent-emerald);
+}
+
+.volt-phase-future {
+  color: var(--text-muted);
+}
+
+/* Main Content */
+.volt-main-content {
+  flex: 1;
+  max-width: 1400px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+/* Safeguard Banner */
+.volt-banner-safeguard {
+  display: flex;
+  gap: 1rem;
+  background: rgba(245, 158, 11, 0.08);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  border-radius: 8px;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.volt-safeguard-icon {
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+.volt-safeguard-heading {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--accent-amber);
+  margin-bottom: 0.25rem;
+}
+
+.volt-safeguard-text {
+  font-size: 0.85rem;
+  color: #e2e8f0;
+  line-height: 1.5;
+}
+
+/* Error Banner */
+.volt-error-banner {
+  background: rgba(244, 63, 94, 0.1);
+  border: 1px solid rgba(244, 63, 94, 0.3);
+  color: #fca5a5;
+  padding: 0.75rem 1rem;
+  border-radius: 6px;
+  margin-bottom: 1.5rem;
+  font-size: 0.85rem;
+}
+
+/* Section */
+.volt-section {
+  margin-bottom: 2.5rem;
+}
+
+.volt-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.volt-section-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: -0.01em;
+}
+
+.volt-section-desc {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-top: 0.15rem;
+}
+
+.volt-provenance-pair {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* Card General */
+.volt-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 1.25rem;
+  position: relative;
+}
+
+/* KPI Grid */
+.volt-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1rem;
+}
+
+.volt-kpi-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.volt-kpi-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.75rem;
+}
+
+.volt-kpi-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.volt-kpi-comparison {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 0.5rem 0 1rem;
+  padding: 0.5rem 0.75rem;
+  background: var(--bg-secondary);
+  border-radius: 6px;
+}
+
+.volt-kpi-subtext {
+  display: block;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+.volt-kpi-val-ref {
+  font-size: 1.15rem;
+  font-weight: 700;
+  font-family: monospace;
+  color: var(--text-secondary);
+}
+
+.volt-kpi-arrow {
+  color: var(--accent-cyan);
+  font-size: 1.1rem;
+}
+
+.volt-kpi-val-target {
+  font-size: 1.35rem;
+  font-weight: 800;
+  font-family: monospace;
+  color: var(--accent-emerald);
+}
+
+.volt-kpi-single {
+  margin: 0.5rem 0 1rem;
+  padding: 0.5rem 0.75rem;
+  background: var(--bg-secondary);
+  border-radius: 6px;
+  text-align: center;
+}
+
+.volt-kpi-val-guardrail {
+  font-size: 1.5rem;
+  font-weight: 800;
+  font-family: monospace;
+  color: var(--accent-cyan);
+}
+
+.volt-kpi-footer {
+  font-size: 0.725rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+  border-top: 1px solid var(--border-color);
+  padding-top: 0.5rem;
+}
+
+/* Grid 4 columns */
+.volt-grid-4 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+.volt-stat-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.volt-stat-label {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.volt-stat-number {
+  font-size: 1.6rem;
+  font-weight: 800;
+  font-family: monospace;
+  color: #ffffff;
+}
+
+.volt-stat-badge-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+}
+
+.volt-stat-detail {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.volt-storage-notice {
+  margin-top: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: var(--bg-secondary);
+  border: 1px dashed var(--border-highlight);
+  border-radius: 6px;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+.volt-notice-tag {
+  color: var(--accent-amber);
+  font-weight: 700;
+  margin-right: 0.35rem;
+}
+
+/* Clusters Grid */
+.volt-clusters-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1rem;
+}
+
+.volt-cluster-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.volt-cluster-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.75rem;
+}
+
+.volt-cluster-name {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.volt-cluster-region {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+.volt-cluster-specs {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin: 0.5rem 0 1rem;
+  padding: 0.6rem 0.75rem;
+  background: var(--bg-secondary);
+  border-radius: 6px;
+}
+
+.volt-spec-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.775rem;
+}
+
+.volt-spec-label {
+  color: var(--text-muted);
+}
+
+.volt-spec-val {
+  color: var(--text-primary);
+}
+
+.volt-cluster-footer {
+  border-top: 1px solid var(--border-color);
+  padding-top: 0.5rem;
+}
+
+/* Table Card */
+.volt-table-card {
+  padding: 0;
+  overflow-x: auto;
+}
+
+.volt-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 0.825rem;
+}
+
+.volt-table th {
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  font-weight: 600;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--border-color);
+  white-space: nowrap;
+}
+
+.volt-table td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-primary);
+}
+
+.volt-table tr:hover {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.volt-table-footnote {
+  padding: 0.75rem 1rem;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  background: var(--bg-secondary);
+}
+
+/* Coming Soon Tab */
+.volt-coming-soon-container {
+  display: flex;
+  justify-content: center;
+  padding: 2rem 0;
+}
+
+.volt-coming-soon-card {
+  max-width: 720px;
+  width: 100%;
+  padding: 2rem;
+}
+
+.volt-coming-soon-badge {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  color: var(--accent-cyan);
+  font-weight: 700;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  margin-bottom: 0.75rem;
+}
+
+.volt-badge-muted {
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.volt-coming-soon-title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin-bottom: 0.5rem;
+}
+
+.volt-coming-soon-desc {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin-bottom: 1.5rem;
+  line-height: 1.6;
+}
+
+.volt-coming-soon-section {
+  margin-bottom: 1.5rem;
+}
+
+.volt-subheading {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 0.75rem;
+}
+
+.volt-feature-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.volt-feature-item {
+  display: flex;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  color: #cbd5e1;
+}
+
+.volt-check-icon {
+  color: var(--accent-cyan);
+}
+
+.volt-coming-soon-safeguard {
+  padding: 1rem;
+  background: rgba(6, 182, 212, 0.05);
+  border: 1px solid rgba(6, 182, 212, 0.2);
+  border-radius: 6px;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.volt-safeguard-tag {
+  display: block;
+  font-weight: 700;
+  color: var(--accent-cyan);
+  margin-bottom: 0.2rem;
+}
+
+/* Footer */
+.volt-footer {
+  background: var(--bg-secondary);
+  border-top: 1px solid var(--border-color);
+  padding: 1.5rem 2rem;
+  margin-top: auto;
+}
+
+.volt-footer-inner {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.volt-footer-col {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+/* Utilities */
+.font-mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.text-cyan-300 { color: #67e8f9; }
+.text-cyan-400 { color: #22d3ee; }
+.text-amber-200 { color: #fde68a; }
+.text-amber-400 { color: #fbbf24; }
+.text-gray-200 { color: #e2e8f0; }
+.text-gray-300 { color: #cbd5e1; }
+.text-gray-400 { color: #94a3b8; }
+.text-gray-500 { color: #64748b; }
+.text-red-400 { color: #f87171; }
+.font-semibold { font-weight: 600; }
+.font-bold { font-weight: 700; }
+.text-center { text-align: center; }
+.text-right { text-align: right; }
+.text-xs { font-size: 0.75rem; }
+.text-sm { font-size: 0.875rem; }

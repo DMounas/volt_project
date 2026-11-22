@@ -1,0 +1,54 @@
+# ==========================================================
+# VOLT: Mathematical Model & Solver Settings
+# Phase 1: Model configuration placeholder.
+# Rule: Do NOT pretend the optimization model exists or solves yet.
+# ==========================================================
+
+temporal_configuration:
+  horizon_hours: 24
+  decision_interval_minutes: 60
+  time_step_hours: 1.0
+  timezone: "Asia/Kolkata"
+  market_ingestion_block_minutes: 15
+  description: "Rolling 24-hour horizon with 1-hour decision intervals; preserves 15-minute IEX market block granularity in adapters."
+
+spatial_configuration:
+  active_clusters:
+    - "Delhi NCR"
+    - "Mumbai MMR"
+    - "Bengaluru"
+    - "Hyderabad"
+    - "Chennai"
+  cluster_count: 5
+  allow_inter_city_power_transfer: false
+  description: "Five electrically isolated metro clusters; inter-city physical electricity transfer is strictly prohibited."
+
+solver_configuration:
+  preferred_solver: "highs"
+  alternate_solvers:
+    - "glpk"
+    - "cbc"
+  mip_gap_tolerance: 0.01
+  time_limit_seconds: 60
+  enable_safe_fallback_heuristic: true
+  threads: 4
+  status: "configured_placeholder"
+  note: "Solver adapter and Pyomo formulation will be implemented in Phase 5."
+
+objective_parameters:
+  formulation: "risk_aware_cvar"
+  risk_metric: "CVaR"
+  cvar_alpha: 0.95
+  cvar_lambda: 0.20
+  service_penalty_unmet_critical: 15000.0  # INR/MWh priority penalty
+  service_penalty_unmet_flexible: 3500.0   # INR/MWh flexible penalty
+  degradation_weight: 1.0
+
+physical_safeguards:
+  allow_swap_to_grid_discharge: false
+  treat_swap_as_stationary_bess: false
+  enforce_emergency_reserve: true
+  emergency_reserve_fraction: 0.05
+  enforce_tariff_guardrail: true
+  tariff_min_multiplier: 0.80
+  tariff_max_multiplier: 1.20

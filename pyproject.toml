@@ -1,0 +1,60 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "volt"
+version = "0.1.0"
+description = "VOLT: Virtual Orchestration of Load, Tariffs & Energy - Decision-Support Digital Twin"
+readme = "README.md"
+requires-python = ">=3.11"
+authors = [
+    { name = "VOLT Engineering Team" }
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Framework :: FastAPI",
+    "Topic :: Scientific/Engineering :: Energy",
+]
+dependencies = [
+    "fastapi>=0.110.0",
+    "uvicorn>=0.28.0",
+    "pydantic>=2.6.0",
+    "pydantic-settings>=2.2.0",
+    "pyyaml>=6.0.1",
+    "sqlalchemy>=2.0.28",
+    "psycopg2-binary>=2.9.9",
+    "python-dotenv>=1.0.1",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-asyncio>=0.23.0",
+    "httpx>=0.27.0",
+    "ruff>=0.3.0",
+    "mypy>=1.9.0",
+]
+science = [
+    "numpy>=1.26.0",
+    "pandas>=2.2.0",
+]
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+testpaths = ["backend/tests", "engine/tests"]
+pythonpath = [".", "backend", "engine"]
+addopts = "-v --strict-markers"
+markers = [
+    "unit: Unit tests",
+    "integration: Integration tests",
+    "api: API endpoint tests",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"

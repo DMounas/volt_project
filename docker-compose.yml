@@ -1,0 +1,52 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: volt_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-volt_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-volt_secret_password}
+      POSTGRES_DB: ${POSTGRES_DB:-volt_db}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-volt_user} -d ${POSTGRES_DB:-volt_db}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: volt_backend
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      - APP_ENV=production
+      - HOST=0.0.0.0
+      - PORT=8000
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-volt_user}:${POSTGRES_PASSWORD:-volt_secret_password}@db:5432/${POSTGRES_DB:-volt_db}
+      - CONFIG_DIR=configs
+      - CORS_ORIGINS=["http://localhost:5173", "http://127.0.0.1:5173"]
+    ports:
+      - "8000:8000"
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: volt_frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "5173:5173"
+
+volumes:
+  postgres_data:
+    driver: local

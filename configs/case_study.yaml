@@ -1,0 +1,119 @@
+# ==========================================================
+# VOLT: Case Study Facts
+# Source: Case Study Specification (Source-provided facts only)
+# Rule: Do NOT modify or introduce unobserved facts here.
+# ==========================================================
+
+case_metadata:
+  title: "VOLT Five-City EV Fast-Charging & Battery-Swapping Network"
+  specification_version: "v1.0"
+  provenance_default: "OBSERVED"
+  currency: "INR"
+
+clusters:
+  names:
+    - "Delhi NCR"
+    - "Mumbai MMR"
+    - "Bengaluru"
+    - "Hyderabad"
+    - "Chennai"
+  count: 5
+  provenance: "OBSERVED"
+  description: "Five independent metro operational clusters coordinated by a central orchestrator"
+
+installed_capacity:
+  value: 1200.0
+  unit: "MW"
+  provenance: "OBSERVED"
+  description: "Total combined system installed power capacity across all five clusters"
+
+capacity_mix:
+  fast_charging:
+    share: 0.60
+    percentage: 60.0
+    aggregate_capacity_mw: 720.0
+    unit: "fraction"
+    provenance: "OBSERVED"
+    description: "DC fast-charging hubs share of total installed capacity (720 MW)"
+  battery_swapping:
+    share: 0.40
+    percentage: 40.0
+    aggregate_capacity_mw: 480.0
+    unit: "fraction"
+    provenance: "OBSERVED"
+    description: "Battery-swap stations share of total installed capacity (480 MW)"
+
+storage_capacity:
+  combined_storage_mwh: 600.0
+  unit: "MWh"
+  provenance: "OBSERVED"
+  asset_split_known: false
+  description: "Combined storage capacity across stationary BESS and swap-pack inventory. Asset split is unknown in case facts and must be configured in assumptions."
+
+procurement_references:
+  renewable_sourcing_share:
+    value: 0.35
+    percentage: 35.0
+    unit: "fraction"
+    provenance: "OBSERVED"
+    description: "Portfolio open-access solar and wind sourcing share; not a constant hourly generation constraint"
+  other_sources:
+    - "DISCOM power purchase agreements"
+    - "IEX Day-Ahead Market (DAM) and Real-Time Market (RTM)"
+
+kpi_benchmarks:
+  service_reliability:
+    current_reference: 0.78
+    current_percentage: 78.0
+    target: 0.897
+    target_percentage: 89.7
+    relative_increase_percent: 15.0
+    unit: "fraction"
+    provenance: "OBSERVED"
+    description: "Combined energy and swap service reliability baseline (78%) and stated target (89.7%)"
+  energy_losses:
+    current_reference: 0.10
+    current_percentage: 10.0
+    target: 0.08
+    target_percentage: 8.0
+    relative_reduction_percent: 20.0
+    unit: "fraction"
+    provenance: "OBSERVED"
+    description: "Energy storage, conversion and distribution losses baseline (10%) and reduction target (8%)"
+  ebitda_margin:
+    target: 0.12
+    target_percentage: 12.0
+    operator: ">"
+    scope: "per_cluster_and_consolidated"
+    unit: "fraction"
+    provenance: "OBSERVED"
+    description: "Operating margin target greater than 12% across every individual cluster"
+
+operating_guardrails:
+  emergency_reserve:
+    value: 0.05
+    percentage: 5.0
+    unit: "fraction"
+    scope: "applicable_capacity_and_swap_pack_inventory"
+    constraint_type: "hard_constraint"
+    provenance: "OBSERVED"
+    description: "Mandatory 5% reserve of applicable capacity and swap-pack inventory uncommitted for emergency and priority fleet services"
+  customer_tariff_bound:
+    min_multiplier: 0.80
+    max_multiplier: 1.20
+    reference_base: "previous_day_average_tariff"
+    provenance: "OBSERVED"
+    description: "Customer dynamic tariff strictly bounded between 0.80x and 1.20x of the previous-day average tariff"
+
+historical_data_specification:
+  duration_years: 5
+  time_resolution: "1 hour"
+  required_series:
+    - "weather"
+    - "cluster_charging_demand"
+    - "swap_logs"
+    - "iex_prices"
+    - "renewable_generation"
+    - "battery_soh"
+  provenance: "OBSERVED"
+  description: "Five years of hourly operational, meteorological and market records"

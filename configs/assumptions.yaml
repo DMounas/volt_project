@@ -1,0 +1,192 @@
+# ==========================================================
+# VOLT: Assumptions Register
+# Classification: All parameters here are ASSUMED (not case facts).
+# Every parameter includes: value, unit, provenance, rationale, sensitivity [low, base, high].
+# ==========================================================
+
+cluster_capacity_allocation:
+  description: "Distribution of the 1,200 MW total installed capacity across five metro clusters"
+  provenance: "ASSUMED"
+  rationale: "The case study provides a combined 1,200 MW system capacity but does not specify individual city allocations. An equal 20% baseline is assumed for prototype simulation and is fully configurable."
+  method: "equal_share_baseline"
+  shares:
+    "Delhi NCR":
+      share: 0.20
+      capacity_mw: 240.0
+      sensitivity: { low: 0.15, base: 0.20, high: 0.30 }
+    "Mumbai MMR":
+      share: 0.20
+      capacity_mw: 240.0
+      sensitivity: { low: 0.15, base: 0.20, high: 0.30 }
+    "Bengaluru":
+      share: 0.20
+      capacity_mw: 240.0
+      sensitivity: { low: 0.15, base: 0.20, high: 0.30 }
+    "Hyderabad":
+      share: 0.20
+      capacity_mw: 240.0
+      sensitivity: { low: 0.15, base: 0.20, high: 0.30 }
+    "Chennai":
+      share: 0.20
+      capacity_mw: 240.0
+      sensitivity: { low: 0.15, base: 0.20, high: 0.30 }
+
+storage_asset_split:
+  description: "Split of the 600 MWh combined storage capacity between stationary BESS and battery swap packs"
+  provenance: "ASSUMED"
+  rationale: "Case study provides a single combined 600 MWh storage figure without specifying the asset split. A 50/50 split (300 MWh BESS / 300 MWh swap packs) is adopted as baseline."
+  stationary_bess:
+    share: 0.50
+    capacity_mwh: 300.0
+    unit: "MWh"
+    sensitivity:
+      low: 150.0   # 25% share
+      base: 300.0  # 50% share
+      high: 450.0  # 75% share
+  swap_pack_inventory:
+    share: 0.50
+    capacity_mwh: 300.0
+    unit: "MWh"
+    sensitivity:
+      low: 150.0   # 25% share
+      base: 300.0  # 50% share
+      high: 450.0  # 75% share
+
+stationary_bess_parameters:
+  description: "Operational and physical parameters for stationary battery energy storage systems"
+  provenance: "ASSUMED"
+  rationale: "Storage MWh capacity does not determine power rating (MW). 0.5C rate is industry-standard for 2-hour duration stationary grid support batteries."
+  c_rate:
+    value: 0.50
+    unit: "1/h"
+    sensitivity: { low: 0.25, base: 0.50, high: 1.00 }
+  max_charge_power_mw_total:
+    value: 150.0
+    unit: "MW"
+    sensitivity: { low: 75.0, base: 150.0, high: 300.0 }
+  max_discharge_power_mw_total:
+    value: 150.0
+    unit: "MW"
+    sensitivity: { low: 75.0, base: 150.0, high: 300.0 }
+  charge_efficiency:
+    value: 0.93
+    unit: "fraction"
+    sensitivity: { low: 0.90, base: 0.93, high: 0.96 }
+  discharge_efficiency:
+    value: 0.93
+    unit: "fraction"
+    sensitivity: { low: 0.90, base: 0.93, high: 0.96 }
+  soc_min:
+    value: 0.10
+    unit: "fraction"
+    sensitivity: { low: 0.05, base: 0.10, high: 0.15 }
+  soc_max:
+    value: 0.90
+    unit: "fraction"
+    sensitivity: { low: 0.85, base: 0.90, high: 0.95 }
+  initial_soc:
+    value: 0.50
+    unit: "fraction"
+    sensitivity: { low: 0.30, base: 0.50, high: 0.70 }
+  degradation_cost_inr_per_mwh:
+    value: 1250.0
+    unit: "INR/MWh"
+    sensitivity: { low: 800.0, base: 1250.0, high: 2000.0 }
+
+swap_pack_specifications:
+  description: "Standard parameters for commercial swappable battery packs (2W/3W commercial fleets)"
+  provenance: "ASSUMED"
+  rationale: "Pack energy rating and population are not provided in the case. Based on standard Indian commercial 2W/3W swappable pack standard (e.g., 2.5 kWh LFP/NMC pack)."
+  pack_nominal_capacity_kwh:
+    value: 2.5
+    unit: "kWh"
+    sensitivity: { low: 2.0, base: 2.5, high: 3.5 }
+  total_fleet_pack_count:
+    value: 120000
+    unit: "packs"
+    rationale: "300 MWh total swap pack capacity / 2.5 kWh nominal capacity = 120,000 packs"
+    sensitivity: { low: 80000, base: 120000, high: 150000 }
+  charging_power_per_slot_kw:
+    value: 2.5
+    unit: "kW"
+    rationale: "1C standard charging rate per swap slot to balance thermal management and turnaround"
+    sensitivity: { low: 1.5, base: 2.5, high: 3.5 }
+  charge_efficiency:
+    value: 0.90
+    unit: "fraction"
+    sensitivity: { low: 0.86, base: 0.90, high: 0.94 }
+  ready_soc_threshold:
+    value: 0.90
+    unit: "fraction"
+    rationale: "Pack must reach at least 90% SOC before being dispensed to a customer"
+    sensitivity: { low: 0.85, base: 0.90, high: 0.95 }
+  soh_retirement_threshold:
+    value: 0.75
+    unit: "fraction"
+    rationale: "Packs degraded below 75% SOH are pulled from active swapping service"
+    sensitivity: { low: 0.70, base: 0.75, high: 0.80 }
+
+cluster_grid_import_limits:
+  description: "Maximum instantaneous power drawn from the upstream utility grid per cluster"
+  provenance: "ASSUMED"
+  rationale: "Substation and distribution interconnection limits are not supplied in the case. Assumed equal to cluster installed capacity."
+  per_cluster_import_limit_mw:
+    value: 240.0
+    unit: "MW"
+    sensitivity: { low: 180.0, base: 240.0, high: 300.0 }
+
+procurement_tariffs:
+  description: "Illustrative baseline procurement prices by source"
+  provenance: "ASSUMED"
+  rationale: "Exact commercial contract terms with DISCOMs and renewable IPPs are unsupplied."
+  discom_tariff_inr_per_kwh:
+    value: 7.50
+    unit: "INR/kWh"
+    inr_per_mwh: 7500.0
+    sensitivity: { low: 6.50, base: 7.50, high: 9.00 }
+  renewable_contract_inr_per_kwh:
+    value: 3.80
+    unit: "INR/kWh"
+    inr_per_mwh: 3800.0
+    sensitivity: { low: 3.20, base: 3.80, high: 4.50 }
+  iex_dam_average_inr_per_kwh:
+    value: 5.20
+    unit: "INR/kWh"
+    inr_per_mwh: 5200.0
+    sensitivity: { low: 3.50, base: 5.20, high: 10.00 }
+  retail_base_charging_tariff_inr_per_kwh:
+    value: 11.50
+    unit: "INR/kWh"
+    sensitivity: { low: 9.50, base: 11.50, high: 14.00 }
+  retail_base_swap_fee_inr_per_swap:
+    value: 85.00
+    unit: "INR/swap"
+    sensitivity: { low: 70.00, base: 85.00, high: 110.00 }
+
+customer_flexibility:
+  description: "Fleet customer willingness to shift charging window upon incentive"
+  provenance: "ASSUMED"
+  rationale: "Price elasticity and opt-in rates are uncalibrated without historical driver response logs."
+  opt_in_fleet_share:
+    value: 0.30
+    unit: "fraction"
+    sensitivity: { low: 0.15, base: 0.30, high: 0.50 }
+  max_delay_hours:
+    value: 2.0
+    unit: "hour"
+    sensitivity: { low: 1.0, base: 2.0, high: 3.0 }
+  incentive_tier_1_inr_per_kwh:
+    value: 1.50
+    unit: "INR/kWh"
+    delay_hours: 1.0
+  incentive_tier_2_inr_per_kwh:
+    value: 2.50
+    unit: "INR/kWh"
+    delay_hours: 2.0
+
+inter_city_transfer:
+  description: "Physical electricity and pack transfer constraints between clusters"
+  provenance: "ASSUMED"
+  rationale: "Inter-city power wheeling is commercially and physically distinct. Inter-cluster power transfer is strictly disabled."
+  electricity_transfer_enabled: false
+  swap_pack_inter_city_transfer_enabled: false
