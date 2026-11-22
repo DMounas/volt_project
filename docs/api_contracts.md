@@ -583,3 +583,177 @@ Accept: application/json
   "provenance": "SYNTHETIC"
 }
 ```
+
+---
+
+## 9. Forecast Summary (`GET /api/v1/forecasts/summary`)
+
+### Request
+```http
+GET /api/v1/forecasts/summary HTTP/1.1
+Host: localhost:8000
+Accept: application/json
+```
+
+### Response (`200 OK`)
+```json
+{
+  "available_targets": [
+    {
+      "target_name": "fast_charge_demand_mwh",
+      "display_name": "Fast-Charging Demand",
+      "unit": "MWh",
+      "scope": "cluster",
+      "non_negative": true
+    },
+    {
+      "target_name": "swap_demand_mwh",
+      "display_name": "Battery Swap Demand",
+      "unit": "MWh",
+      "scope": "cluster",
+      "non_negative": true
+    },
+    {
+      "target_name": "solar_available_mwh",
+      "display_name": "Solar Availability",
+      "unit": "MWh",
+      "scope": "cluster",
+      "non_negative": true
+    },
+    {
+      "target_name": "wind_available_mwh",
+      "display_name": "Wind Availability",
+      "unit": "MWh",
+      "scope": "cluster",
+      "non_negative": true
+    },
+    {
+      "target_name": "iex_clearing_price_inr_mwh",
+      "display_name": "IEX DAM Market Price",
+      "unit": "INR/MWh",
+      "scope": "national",
+      "non_negative": true
+    }
+  ],
+  "available_clusters": ["delhi_ncr", "mumbai_mmr", "bengaluru", "hyderabad", "chennai", "national"],
+  "training_date_range": {
+    "start": "2021-01-01T00:00:00+05:30",
+    "end": "2023-12-31T23:00:00+05:30"
+  },
+  "validation_date_range": {
+    "start": "2024-01-01T00:00:00+05:30",
+    "end": "2024-12-31T23:00:00+05:30"
+  },
+  "test_date_range": {
+    "start": "2025-01-01T00:00:00+05:30",
+    "end": "2025-12-31T23:00:00+05:30"
+  },
+  "model_family": "HistGradientBoostingRegressor (P10, P50, P90)",
+  "provenance": "SYNTHETIC",
+  "total_models_trained": 21
+}
+```
+
+---
+
+## 10. Latest Forecast (`GET /api/v1/forecasts/latest`)
+
+### Request
+```http
+GET /api/v1/forecasts/latest?cluster_id=delhi_ncr&target_name=fast_charge_demand_mwh HTTP/1.1
+Host: localhost:8000
+Accept: application/json
+```
+
+### Response (`200 OK`)
+```json
+{
+  "origin_timestamp": "2025-06-15T12:00:00+05:30",
+  "target_name": "fast_charge_demand_mwh",
+  "target_display_name": "Fast-Charging Demand",
+  "target_unit": "MWh",
+  "cluster_id": "delhi_ncr",
+  "model_family": "HistGradientBoostingRegressor",
+  "training_date_range": {
+    "start": "2021-01-01",
+    "end": "2023-12-31"
+  },
+  "provenance": "SYNTHETIC",
+  "horizons": [
+    {
+      "horizon_hour": 1,
+      "target_timestamp": "2025-06-15T13:00:00+05:30",
+      "p10": 42.150,
+      "p50": 48.620,
+      "p90": 55.430
+    },
+    {
+      "horizon_hour": 24,
+      "target_timestamp": "2025-06-16T12:00:00+05:30",
+      "p10": 39.800,
+      "p50": 46.210,
+      "p90": 53.940
+    }
+  ]
+}
+```
+
+---
+
+## 11. Run Forecast (`POST /api/v1/forecasts/run`)
+
+### Request
+```http
+POST /api/v1/forecasts/run HTTP/1.1
+Host: localhost:8000
+Content-Type: application/json
+
+{
+  "origin_timestamp": "2025-06-15T12:00:00+05:30",
+  "cluster_id": "delhi_ncr",
+  "target_name": "fast_charge_demand_mwh"
+}
+```
+
+### Response (`200 OK`)
+Returns `ForecastResponse` object with 24 horizon steps.
+
+---
+
+## 12. Forecast Backtest Metrics (`GET /api/v1/forecasts/metrics`)
+
+### Request
+```http
+GET /api/v1/forecasts/metrics HTTP/1.1
+Host: localhost:8000
+Accept: application/json
+```
+
+### Response (`200 OK`)
+```json
+{
+  "evaluation_split": "TEST_2025_UNTOUCHED",
+  "metrics": {
+    "fast_charge_demand_mwh_delhi_ncr": {
+      "target_name": "fast_charge_demand_mwh",
+      "target_unit": "MWh",
+      "cluster_id": "delhi_ncr",
+      "evaluation_split": "TEST_2025_UNTOUCHED",
+      "sample_count": 728,
+      "overall_mae": 1.338,
+      "overall_rmse": 1.761,
+      "overall_wape_pct": 3.73,
+      "pinball_p10": 0.443,
+      "pinball_p50": 0.669,
+      "pinball_p90": 0.355,
+      "mean_pinball": 0.489,
+      "coverage_p10_p90_pct": 81.3,
+      "mean_interval_width": 4.87,
+      "baseline_name": "SeasonalNaive24",
+      "baseline_mae": 2.377,
+      "mae_improvement_pct": 43.7
+    }
+  },
+  "provenance": "SYNTHETIC"
+}
+```

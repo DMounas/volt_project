@@ -1,0 +1,1267 @@
+{
+  "fast_charge_demand_mwh_delhi_ncr": {
+    "origin_timestamp": "2025-06-15T12:00:00+05:30",
+    "target_name": "fast_charge_demand_mwh",
+    "target_display_name": "Fast-Charging Demand",
+    "target_unit": "MWh",
+    "cluster_id": "delhi_ncr",
+    "model_family": "HistGradientBoostingRegressor",
+    "training_date_range": {
+      "start": "2021-01-01",
+      "end": "2023-12-31"
+    },
+    "provenance": "SYNTHETIC",
+    "horizons": [
+      {
+        "horizon_hour": 1,
+        "target_timestamp": "2025-06-15T13:00:00+05:30",
+        "p10": 12.922,
+        "p50": 13.988,
+        "p90": 15.677
+      },
+      {
+        "horizon_hour": 2,
+        "target_timestamp": "2025-06-15T14:00:00+05:30",
+        "p10": 15.259,
+        "p50": 16.692,
+        "p90": 18.696
+      },
+      {
+        "horizon_hour": 3,
+        "target_timestamp": "2025-06-15T15:00:00+05:30",
+        "p10": 19.858,
+        "p50": 21.638,
+        "p90": 23.501
+      },
+      {
+        "horizon_hour": 4,
+        "target_timestamp": "2025-06-15T16:00:00+05:30",
+        "p10": 27.123,
+        "p50": 30.745,
+        "p90": 33.306
+      },
+      {
+        "horizon_hour": 5,
+        "target_timestamp": "2025-06-15T17:00:00+05:30",
+        "p10": 30.424,
+        "p50": 34.235,
+        "p90": 36.895
+      },
+      {
+        "horizon_hour": 6,
+        "target_timestamp": "2025-06-15T18:00:00+05:30",
+        "p10": 29.696,
+        "p50": 34.524,
+        "p90": 35.761
+      },
+      {
+        "horizon_hour": 7,
+        "target_timestamp": "2025-06-15T19:00:00+05:30",
+        "p10": 28.095,
+        "p50": 31.889,
+        "p90": 34.353
+      },
+      {
+        "horizon_hour": 8,
+        "target_timestamp": "2025-06-15T20:00:00+05:30",
+        "p10": 20.282,
+        "p50": 22.12,
+        "p90": 24.873
+      },
+      {
+        "horizon_hour": 9,
+        "target_timestamp": "2025-06-15T21:00:00+05:30",
+        "p10": 17.731,
+        "p50": 19.049,
+        "p90": 20.87
+      },
+      {
+        "horizon_hour": 10,
+        "target_timestamp": "2025-06-15T22:00:00+05:30",
+        "p10": 15.786,
+        "p50": 17.114,
+        "p90": 19.163
+      },
+      {
+        "horizon_hour": 11,
+        "target_timestamp": "2025-06-15T23:00:00+05:30",
+        "p10": 20.093,
+        "p50": 21.731,
+        "p90": 23.061
+      },
+      {
+        "horizon_hour": 12,
+        "target_timestamp": "2025-06-16T00:00:00+05:30",
+        "p10": 25.842,
+        "p50": 28.422,
+        "p90": 31.429
+      },
+      {
+        "horizon_hour": 13,
+        "target_timestamp": "2025-06-16T01:00:00+05:30",
+        "p10": 31.766,
+        "p50": 36.014,
+        "p90": 37.886
+      },
+      {
+        "horizon_hour": 14,
+        "target_timestamp": "2025-06-16T02:00:00+05:30",
+        "p10": 38.143,
+        "p50": 44.597,
+        "p90": 49.215
+      },
+      {
+        "horizon_hour": 15,
+        "target_timestamp": "2025-06-16T03:00:00+05:30",
+        "p10": 38.143,
+        "p50": 48.244,
+        "p90": 52.805
+      },
+      {
+        "horizon_hour": 16,
+        "target_timestamp": "2025-06-16T04:00:00+05:30",
+        "p10": 38.143,
+        "p50": 44.13,
+        "p90": 47.138
+      },
+      {
+        "horizon_hour": 17,
+        "target_timestamp": "2025-06-16T05:00:00+05:30",
+        "p10": 27.88,
+        "p50": 31.577,
+        "p90": 34.38
+      },
+      {
+        "horizon_hour": 18,
+        "target_timestamp": "2025-06-16T06:00:00+05:30",
+        "p10": 24.329,
+        "p50": 25.405,
+        "p90": 28.225
+      },
+      {
+        "horizon_hour": 19,
+        "target_timestamp": "2025-06-16T07:00:00+05:30",
+        "p10": 17.156,
+        "p50": 18.71,
+        "p90": 20.109
+      },
+      {
+        "horizon_hour": 20,
+        "target_timestamp": "2025-06-16T08:00:00+05:30",
+        "p10": 12.494,
+        "p50": 13.372,
+        "p90": 14.975
+      },
+      {
+        "horizon_hour": 21,
+        "target_timestamp": "2025-06-16T09:00:00+05:30",
+        "p10": 11.724,
+        "p50": 12.691,
+        "p90": 14.624
+      },
+      {
+        "horizon_hour": 22,
+        "target_timestamp": "2025-06-16T10:00:00+05:30",
+        "p10": 12.432,
+        "p50": 13.249,
+        "p90": 14.975
+      },
+      {
+        "horizon_hour": 23,
+        "target_timestamp": "2025-06-16T11:00:00+05:30",
+        "p10": 12.44,
+        "p50": 13.116,
+        "p90": 14.821
+      },
+      {
+        "horizon_hour": 24,
+        "target_timestamp": "2025-06-16T12:00:00+05:30",
+        "p10": 12.291,
+        "p50": 13.452,
+        "p90": 14.917
+      }
+    ],
+    "evaluation_metrics": {
+      "target_name": "fast_charge_demand_mwh",
+      "target_unit": "MWh",
+      "cluster_id": "delhi_ncr",
+      "evaluation_split": "TEST_2025_UNTOUCHED",
+      "sample_count": 17136,
+      "overall_mae": 1.338,
+      "overall_rmse": 1.835,
+      "overall_wape_pct": 5.37,
+      "pinball_p10": 0.317,
+      "pinball_p50": 0.669,
+      "pinball_p90": 0.327,
+      "mean_pinball": 0.438,
+      "coverage_p10_p90_pct": 81.3,
+      "mean_interval_width": 4.87,
+      "baseline_name": "SeasonalNaive24",
+      "baseline_mae": 2.377,
+      "mae_improvement_pct": 43.7,
+      "horizon_buckets": {
+        "near_term": {
+          "bucket_name": "near_term",
+          "horizon_range": "1-6h",
+          "sample_count": 4284,
+          "mae": 1.069,
+          "rmse": 1.496,
+          "wape_pct": 5.24,
+          "pinball_p10": 0.251,
+          "pinball_p50": 0.535,
+          "pinball_p90": 0.271,
+          "mean_pinball": 0.352,
+          "coverage_p10_p90_pct": 82.3,
+          "mean_interval_width": 4.04,
+          "baseline_mae": 1.923,
+          "mae_improvement_pct": 44.38
+        },
+        "mid_term": {
+          "bucket_name": "mid_term",
+          "horizon_range": "7-12h",
+          "sample_count": 4284,
+          "mae": 1.608,
+          "rmse": 2.123,
+          "wape_pct": 5.47,
+          "pinball_p10": 0.384,
+          "pinball_p50": 0.804,
+          "pinball_p90": 0.381,
+          "mean_pinball": 0.523,
+          "coverage_p10_p90_pct": 80.2,
+          "mean_interval_width": 5.694,
+          "baseline_mae": 2.833,
+          "mae_improvement_pct": 43.24
+        },
+        "day_ahead": {
+          "bucket_name": "day_ahead",
+          "horizon_range": "13-24h",
+          "sample_count": 8568,
+          "mae": 1.338,
+          "rmse": 1.833,
+          "wape_pct": 5.37,
+          "pinball_p10": 0.317,
+          "pinball_p50": 0.669,
+          "pinball_p90": 0.328,
+          "mean_pinball": 0.438,
+          "coverage_p10_p90_pct": 81.3,
+          "mean_interval_width": 4.873,
+          "baseline_mae": 2.377,
+          "mae_improvement_pct": 43.7
+        }
+      },
+      "notes": "Chronological evaluation on TEST_2025_UNTOUCHED. Non-crossing quantiles enforced."
+    }
+  },
+  "swap_demand_mwh_delhi_ncr": {
+    "origin_timestamp": "2025-06-15T12:00:00+05:30",
+    "target_name": "swap_demand_mwh",
+    "target_display_name": "Battery Swap Demand",
+    "target_unit": "MWh",
+    "cluster_id": "delhi_ncr",
+    "model_family": "HistGradientBoostingRegressor",
+    "training_date_range": {
+      "start": "2021-01-01",
+      "end": "2023-12-31"
+    },
+    "provenance": "SYNTHETIC",
+    "horizons": [
+      {
+        "horizon_hour": 1,
+        "target_timestamp": "2025-06-15T13:00:00+05:30",
+        "p10": 0.826,
+        "p50": 0.917,
+        "p90": 1.0
+      },
+      {
+        "horizon_hour": 2,
+        "target_timestamp": "2025-06-15T14:00:00+05:30",
+        "p10": 1.042,
+        "p50": 1.157,
+        "p90": 1.392
+      },
+      {
+        "horizon_hour": 3,
+        "target_timestamp": "2025-06-15T15:00:00+05:30",
+        "p10": 1.486,
+        "p50": 1.647,
+        "p90": 1.866
+      },
+      {
+        "horizon_hour": 4,
+        "target_timestamp": "2025-06-15T16:00:00+05:30",
+        "p10": 1.677,
+        "p50": 2.03,
+        "p90": 2.232
+      },
+      {
+        "horizon_hour": 5,
+        "target_timestamp": "2025-06-15T17:00:00+05:30",
+        "p10": 2.088,
+        "p50": 2.382,
+        "p90": 2.554
+      },
+      {
+        "horizon_hour": 6,
+        "target_timestamp": "2025-06-15T18:00:00+05:30",
+        "p10": 1.584,
+        "p50": 1.842,
+        "p90": 2.048
+      },
+      {
+        "horizon_hour": 7,
+        "target_timestamp": "2025-06-15T19:00:00+05:30",
+        "p10": 1.324,
+        "p50": 1.459,
+        "p90": 1.651
+      },
+      {
+        "horizon_hour": 8,
+        "target_timestamp": "2025-06-15T20:00:00+05:30",
+        "p10": 1.363,
+        "p50": 1.489,
+        "p90": 1.72
+      },
+      {
+        "horizon_hour": 9,
+        "target_timestamp": "2025-06-15T21:00:00+05:30",
+        "p10": 1.874,
+        "p50": 2.044,
+        "p90": 2.253
+      },
+      {
+        "horizon_hour": 10,
+        "target_timestamp": "2025-06-15T22:00:00+05:30",
+        "p10": 1.841,
+        "p50": 2.001,
+        "p90": 2.204
+      },
+      {
+        "horizon_hour": 11,
+        "target_timestamp": "2025-06-15T23:00:00+05:30",
+        "p10": 1.395,
+        "p50": 1.574,
+        "p90": 1.74
+      },
+      {
+        "horizon_hour": 12,
+        "target_timestamp": "2025-06-16T00:00:00+05:30",
+        "p10": 1.353,
+        "p50": 1.512,
+        "p90": 1.71
+      },
+      {
+        "horizon_hour": 13,
+        "target_timestamp": "2025-06-16T01:00:00+05:30",
+        "p10": 1.542,
+        "p50": 1.788,
+        "p90": 1.972
+      },
+      {
+        "horizon_hour": 14,
+        "target_timestamp": "2025-06-16T02:00:00+05:30",
+        "p10": 2.139,
+        "p50": 2.415,
+        "p90": 2.615
+      },
+      {
+        "horizon_hour": 15,
+        "target_timestamp": "2025-06-16T03:00:00+05:30",
+        "p10": 2.24,
+        "p50": 2.799,
+        "p90": 3.144
+      },
+      {
+        "horizon_hour": 16,
+        "target_timestamp": "2025-06-16T04:00:00+05:30",
+        "p10": 2.24,
+        "p50": 2.707,
+        "p90": 2.982
+      },
+      {
+        "horizon_hour": 17,
+        "target_timestamp": "2025-06-16T05:00:00+05:30",
+        "p10": 2.005,
+        "p50": 2.268,
+        "p90": 2.507
+      },
+      {
+        "horizon_hour": 18,
+        "target_timestamp": "2025-06-16T06:00:00+05:30",
+        "p10": 1.469,
+        "p50": 1.74,
+        "p90": 2.04
+      },
+      {
+        "horizon_hour": 19,
+        "target_timestamp": "2025-06-16T07:00:00+05:30",
+        "p10": 1.109,
+        "p50": 1.262,
+        "p90": 1.422
+      },
+      {
+        "horizon_hour": 20,
+        "target_timestamp": "2025-06-16T08:00:00+05:30",
+        "p10": 0.757,
+        "p50": 0.838,
+        "p90": 0.915
+      },
+      {
+        "horizon_hour": 21,
+        "target_timestamp": "2025-06-16T09:00:00+05:30",
+        "p10": 0.723,
+        "p50": 0.802,
+        "p90": 0.905
+      },
+      {
+        "horizon_hour": 22,
+        "target_timestamp": "2025-06-16T10:00:00+05:30",
+        "p10": 0.719,
+        "p50": 0.816,
+        "p90": 0.9
+      },
+      {
+        "horizon_hour": 23,
+        "target_timestamp": "2025-06-16T11:00:00+05:30",
+        "p10": 0.702,
+        "p50": 0.811,
+        "p90": 0.892
+      },
+      {
+        "horizon_hour": 24,
+        "target_timestamp": "2025-06-16T12:00:00+05:30",
+        "p10": 0.742,
+        "p50": 0.831,
+        "p90": 0.913
+      }
+    ],
+    "evaluation_metrics": {
+      "target_name": "swap_demand_mwh",
+      "target_unit": "MWh",
+      "cluster_id": "delhi_ncr",
+      "evaluation_split": "TEST_2025_UNTOUCHED",
+      "sample_count": 17136,
+      "overall_mae": 0.096,
+      "overall_rmse": 0.128,
+      "overall_wape_pct": 6.67,
+      "pinball_p10": 0.022,
+      "pinball_p50": 0.048,
+      "pinball_p90": 0.022,
+      "mean_pinball": 0.031,
+      "coverage_p10_p90_pct": 80.9,
+      "mean_interval_width": 0.328,
+      "baseline_name": "SeasonalNaive24",
+      "baseline_mae": 0.131,
+      "mae_improvement_pct": 26.97,
+      "horizon_buckets": {
+        "near_term": {
+          "bucket_name": "near_term",
+          "horizon_range": "1-6h",
+          "sample_count": 4284,
+          "mae": 0.08,
+          "rmse": 0.107,
+          "wape_pct": 6.62,
+          "pinball_p10": 0.018,
+          "pinball_p50": 0.04,
+          "pinball_p90": 0.019,
+          "mean_pinball": 0.026,
+          "coverage_p10_p90_pct": 81.9,
+          "mean_interval_width": 0.279,
+          "baseline_mae": 0.108,
+          "mae_improvement_pct": 26.17
+        },
+        "mid_term": {
+          "bucket_name": "mid_term",
+          "horizon_range": "7-12h",
+          "sample_count": 4284,
+          "mae": 0.111,
+          "rmse": 0.146,
+          "wape_pct": 6.72,
+          "pinball_p10": 0.026,
+          "pinball_p50": 0.056,
+          "pinball_p90": 0.026,
+          "mean_pinball": 0.036,
+          "coverage_p10_p90_pct": 79.9,
+          "mean_interval_width": 0.377,
+          "baseline_mae": 0.154,
+          "mae_improvement_pct": 27.5
+        },
+        "day_ahead": {
+          "bucket_name": "day_ahead",
+          "horizon_range": "13-24h",
+          "sample_count": 8568,
+          "mae": 0.096,
+          "rmse": 0.128,
+          "wape_pct": 6.67,
+          "pinball_p10": 0.022,
+          "pinball_p50": 0.048,
+          "pinball_p90": 0.022,
+          "mean_pinball": 0.031,
+          "coverage_p10_p90_pct": 80.8,
+          "mean_interval_width": 0.328,
+          "baseline_mae": 0.131,
+          "mae_improvement_pct": 26.98
+        }
+      },
+      "notes": "Chronological evaluation on TEST_2025_UNTOUCHED. Non-crossing quantiles enforced."
+    }
+  },
+  "solar_available_mwh_delhi_ncr": {
+    "origin_timestamp": "2025-06-15T12:00:00+05:30",
+    "target_name": "solar_available_mwh",
+    "target_display_name": "Solar Availability",
+    "target_unit": "MWh",
+    "cluster_id": "delhi_ncr",
+    "model_family": "HistGradientBoostingRegressor",
+    "training_date_range": {
+      "start": "2021-01-01",
+      "end": "2023-12-31"
+    },
+    "provenance": "SYNTHETIC",
+    "horizons": [
+      {
+        "horizon_hour": 1,
+        "target_timestamp": "2025-06-15T13:00:00+05:30",
+        "p10": 0.0,
+        "p50": 0.0,
+        "p90": 0.0
+      },
+      {
+        "horizon_hour": 2,
+        "target_timestamp": "2025-06-15T14:00:00+05:30",
+        "p10": 0.0,
+        "p50": 0.128,
+        "p90": 1.59
+      },
+      {
+        "horizon_hour": 3,
+        "target_timestamp": "2025-06-15T15:00:00+05:30",
+        "p10": 0.0,
+        "p50": 17.186,
+        "p90": 18.822
+      },
+      {
+        "horizon_hour": 4,
+        "target_timestamp": "2025-06-15T16:00:00+05:30",
+        "p10": 0.0,
+        "p50": 35.772,
+        "p90": 37.325
+      },
+      {
+        "horizon_hour": 5,
+        "target_timestamp": "2025-06-15T17:00:00+05:30",
+        "p10": 3.798,
+        "p50": 47.51,
+        "p90": 51.083
+      },
+      {
+        "horizon_hour": 6,
+        "target_timestamp": "2025-06-15T18:00:00+05:30",
+        "p10": 3.798,
+        "p50": 56.08,
+        "p90": 59.968
+      },
+      {
+        "horizon_hour": 7,
+        "target_timestamp": "2025-06-15T19:00:00+05:30",
+        "p10": 7.776,
+        "p50": 60.461,
+        "p90": 64.886
+      },
+      {
+        "horizon_hour": 8,
+        "target_timestamp": "2025-06-15T20:00:00+05:30",
+        "p10": 3.798,
+        "p50": 62.457,
+        "p90": 66.437
+      },
+      {
+        "horizon_hour": 9,
+        "target_timestamp": "2025-06-15T21:00:00+05:30",
+        "p10": 28.645,
+        "p50": 53.528,
+        "p90": 56.928
+      },
+      {
+        "horizon_hour": 10,
+        "target_timestamp": "2025-06-15T22:00:00+05:30",
+        "p10": 3.798,
+        "p50": 50.495,
+        "p90": 52.74
+      },
+      {
+        "horizon_hour": 11,
+        "target_timestamp": "2025-06-15T23:00:00+05:30",
+        "p10": 3.798,
+        "p50": 43.459,
+        "p90": 46.376
+      },
+      {
+        "horizon_hour": 12,
+        "target_timestamp": "2025-06-16T00:00:00+05:30",
+        "p10": 0.0,
+        "p50": 29.495,
+        "p90": 31.644
+      },
+      {
+        "horizon_hour": 13,
+        "target_timestamp": "2025-06-16T01:00:00+05:30",
+        "p10": 14.289,
+        "p50": 15.753,
+        "p90": 17.882
+      },
+      {
+        "horizon_hour": 14,
+        "target_timestamp": "2025-06-16T02:00:00+05:30",
+        "p10": 0.0,
+        "p50": 0.18,
+        "p90": 1.551
+      },
+      {
+        "horizon_hour": 15,
+        "target_timestamp": "2025-06-16T03:00:00+05:30",
+        "p10": 0.0,
+        "p50": 0.0,
+        "p90": 0.0
+      },
+      {
+        "horizon_hour": 16,
+        "target_timestamp": "2025-06-16T04:00:00+05:30",
+        "p10": 0.0,
+        "p50": 0.0,
+        "p90": 0.0
+      },
+      {
+        "horizon_hour": 17,
+        "target_timestamp": "2025-06-16T05:00:00+05:30",
+        "p10": 0.0,
+        "p50": 0.0,
+        "p90": 0.0
+      },
+      {
+        "horizon_hour": 18,
+        "target_timestamp": "2025-06-16T06:00:00+05:30",
+        "p10": 0.0,
+        "p50": 0.0,
+        "p90": 0.0
+      },
+      {
+        "horizon_hour": 19,
+        "target_timestamp": "2025-06-16T07:00:00+05:30",
+        "p10": 0.0,
+        "p50": 0.0,
+        "p90": 0.0
+      },
+      {
+        "horizon_hour": 20,
+        "target_timestamp": "2025-06-16T08:00:00+05:30",
+        "p10": 0.0,
+        "p50": 0.0,
+        "p90": 0.0
+      },
+      {
+        "horizon_hour": 21,
+        "target_timestamp": "2025-06-16T09:00:00+05:30",
+        "p10": 0.0,
+        "p50": 0.0,
+        "p90": 0.0
+      },
+      {
+        "horizon_hour": 22,
+        "target_timestamp": "2025-06-16T10:00:00+05:30",
+        "p10": 0.0,
+        "p50": 0.0,
+        "p90": 0.0
+      },
+      {
+        "horizon_hour": 23,
+        "target_timestamp": "2025-06-16T11:00:00+05:30",
+        "p10": 0.0,
+        "p50": 0.0,
+        "p90": 0.0
+      },
+      {
+        "horizon_hour": 24,
+        "target_timestamp": "2025-06-16T12:00:00+05:30",
+        "p10": 0.0,
+        "p50": 0.0,
+        "p90": 0.0
+      }
+    ],
+    "evaluation_metrics": {
+      "target_name": "solar_available_mwh",
+      "target_unit": "MWh",
+      "cluster_id": "delhi_ncr",
+      "evaluation_split": "TEST_2025_UNTOUCHED",
+      "sample_count": 17136,
+      "overall_mae": 1.076,
+      "overall_rmse": 2.06,
+      "overall_wape_pct": 6.16,
+      "pinball_p10": 1.519,
+      "pinball_p50": 0.538,
+      "pinball_p90": 0.253,
+      "mean_pinball": 0.77,
+      "coverage_p10_p90_pct": 93.6,
+      "mean_interval_width": 16.883,
+      "baseline_name": "SeasonalNaive24",
+      "baseline_mae": 2.337,
+      "mae_improvement_pct": 53.96,
+      "horizon_buckets": {
+        "near_term": {
+          "bucket_name": "near_term",
+          "horizon_range": "1-6h",
+          "sample_count": 4284,
+          "mae": 0.719,
+          "rmse": 1.319,
+          "wape_pct": 4.73,
+          "pinball_p10": 1.096,
+          "pinball_p50": 0.36,
+          "pinball_p90": 0.188,
+          "mean_pinball": 0.548,
+          "coverage_p10_p90_pct": 94.2,
+          "mean_interval_width": 12.335,
+          "baseline_mae": 2.087,
+          "mae_improvement_pct": 65.54
+        },
+        "mid_term": {
+          "bucket_name": "mid_term",
+          "horizon_range": "7-12h",
+          "sample_count": 4284,
+          "mae": 1.089,
+          "rmse": 2.023,
+          "wape_pct": 5.52,
+          "pinball_p10": 1.829,
+          "pinball_p50": 0.545,
+          "pinball_p90": 0.256,
+          "mean_pinball": 0.876,
+          "coverage_p10_p90_pct": 94.4,
+          "mean_interval_width": 19.968,
+          "baseline_mae": 2.587,
+          "mae_improvement_pct": 57.9
+        },
+        "day_ahead": {
+          "bucket_name": "day_ahead",
+          "horizon_range": "13-24h",
+          "sample_count": 8568,
+          "mae": 1.248,
+          "rmse": 2.36,
+          "wape_pct": 7.15,
+          "pinball_p10": 1.576,
+          "pinball_p50": 0.624,
+          "pinball_p90": 0.284,
+          "mean_pinball": 0.828,
+          "coverage_p10_p90_pct": 93.0,
+          "mean_interval_width": 17.614,
+          "baseline_mae": 2.337,
+          "mae_improvement_pct": 46.6
+        }
+      },
+      "notes": "Chronological evaluation on TEST_2025_UNTOUCHED. Non-crossing quantiles enforced."
+    }
+  },
+  "wind_available_mwh_delhi_ncr": {
+    "origin_timestamp": "2025-06-15T12:00:00+05:30",
+    "target_name": "wind_available_mwh",
+    "target_display_name": "Wind Availability",
+    "target_unit": "MWh",
+    "cluster_id": "delhi_ncr",
+    "model_family": "HistGradientBoostingRegressor",
+    "training_date_range": {
+      "start": "2021-01-01",
+      "end": "2023-12-31"
+    },
+    "provenance": "SYNTHETIC",
+    "horizons": [
+      {
+        "horizon_hour": 1,
+        "target_timestamp": "2025-06-15T13:00:00+05:30",
+        "p10": 0.0,
+        "p50": 0.0,
+        "p90": 0.008
+      },
+      {
+        "horizon_hour": 2,
+        "target_timestamp": "2025-06-15T14:00:00+05:30",
+        "p10": 0.0,
+        "p50": 0.0,
+        "p90": 0.008
+      },
+      {
+        "horizon_hour": 3,
+        "target_timestamp": "2025-06-15T15:00:00+05:30",
+        "p10": 0.0,
+        "p50": 0.0,
+        "p90": 0.008
+      },
+      {
+        "horizon_hour": 4,
+        "target_timestamp": "2025-06-15T16:00:00+05:30",
+        "p10": 0.0,
+        "p50": 0.0,
+        "p90": 0.008
+      },
+      {
+        "horizon_hour": 5,
+        "target_timestamp": "2025-06-15T17:00:00+05:30",
+        "p10": 0.0,
+        "p50": 0.0,
+        "p90": 0.008
+      },
+      {
+        "horizon_hour": 6,
+        "target_timestamp": "2025-06-15T18:00:00+05:30",
+        "p10": 0.0,
+        "p50": 0.0,
+        "p90": 0.008
+      },
+      {
+        "horizon_hour": 7,
+        "target_timestamp": "2025-06-15T19:00:00+05:30",
+        "p10": 0.0,
+        "p50": 0.0,
+        "p90": 0.02
+      },
+      {
+        "horizon_hour": 8,
+        "target_timestamp": "2025-06-15T20:00:00+05:30",
+        "p10": 0.0,
+        "p50": 0.0,
+        "p90": 0.008
+      },
+      {
+        "horizon_hour": 9,
+        "target_timestamp": "2025-06-15T21:00:00+05:30",
+        "p10": 0.0,
+        "p50": 0.0,
+        "p90": 0.01
+      },
+      {
+        "horizon_hour": 10,
+        "target_timestamp": "2025-06-15T22:00:00+05:30",
+        "p10": 0.0,
+        "p50": 0.058,
+        "p90": 0.221
+      },
+      {
+        "horizon_hour": 11,
+        "target_timestamp": "2025-06-15T23:00:00+05:30",
+        "p10": 0.0,
+        "p50": 0.031,
+        "p90": 0.155
+      },
+      {
+        "horizon_hour": 12,
+        "target_timestamp": "2025-06-16T00:00:00+05:30",
+        "p10": 0.0,
+        "p50": 1.046,
+        "p90": 1.752
+      },
+      {
+        "horizon_hour": 13,
+        "target_timestamp": "2025-06-16T01:00:00+05:30",
+        "p10": 0.0,
+        "p50": 1.357,
+        "p90": 2.247
+      },
+      {
+        "horizon_hour": 14,
+        "target_timestamp": "2025-06-16T02:00:00+05:30",
+        "p10": 0.0,
+        "p50": 0.896,
+        "p90": 1.755
+      },
+      {
+        "horizon_hour": 15,
+        "target_timestamp": "2025-06-16T03:00:00+05:30",
+        "p10": 0.0,
+        "p50": 0.291,
+        "p90": 0.753
+      },
+      {
+        "horizon_hour": 16,
+        "target_timestamp": "2025-06-16T04:00:00+05:30",
+        "p10": 0.0,
+        "p50": 0.794,
+        "p90": 1.517
+      },
+      {
+        "horizon_hour": 17,
+        "target_timestamp": "2025-06-16T05:00:00+05:30",
+        "p10": 0.0,
+        "p50": 2.167,
+        "p90": 3.541
+      },
+      {
+        "horizon_hour": 18,
+        "target_timestamp": "2025-06-16T06:00:00+05:30",
+        "p10": 0.0,
+        "p50": 1.703,
+        "p90": 2.824
+      },
+      {
+        "horizon_hour": 19,
+        "target_timestamp": "2025-06-16T07:00:00+05:30",
+        "p10": 0.0,
+        "p50": 0.576,
+        "p90": 1.328
+      },
+      {
+        "horizon_hour": 20,
+        "target_timestamp": "2025-06-16T08:00:00+05:30",
+        "p10": 0.0,
+        "p50": 0.247,
+        "p90": 0.781
+      },
+      {
+        "horizon_hour": 21,
+        "target_timestamp": "2025-06-16T09:00:00+05:30",
+        "p10": 0.0,
+        "p50": 0.033,
+        "p90": 0.215
+      },
+      {
+        "horizon_hour": 22,
+        "target_timestamp": "2025-06-16T10:00:00+05:30",
+        "p10": 0.0,
+        "p50": 0.241,
+        "p90": 0.688
+      },
+      {
+        "horizon_hour": 23,
+        "target_timestamp": "2025-06-16T11:00:00+05:30",
+        "p10": 0.0,
+        "p50": 0.012,
+        "p90": 0.149
+      },
+      {
+        "horizon_hour": 24,
+        "target_timestamp": "2025-06-16T12:00:00+05:30",
+        "p10": 0.0,
+        "p50": 0.109,
+        "p90": 0.514
+      }
+    ],
+    "evaluation_metrics": {
+      "target_name": "wind_available_mwh",
+      "target_unit": "MWh",
+      "cluster_id": "delhi_ncr",
+      "evaluation_split": "TEST_2025_UNTOUCHED",
+      "sample_count": 17136,
+      "overall_mae": 0.251,
+      "overall_rmse": 0.527,
+      "overall_wape_pct": 28.01,
+      "pinball_p10": 0.085,
+      "pinball_p50": 0.125,
+      "pinball_p90": 0.067,
+      "mean_pinball": 0.092,
+      "coverage_p10_p90_pct": 91.3,
+      "mean_interval_width": 1.258,
+      "baseline_name": "SeasonalNaive24",
+      "baseline_mae": 0.779,
+      "mae_improvement_pct": 67.8,
+      "horizon_buckets": {
+        "near_term": {
+          "bucket_name": "near_term",
+          "horizon_range": "1-6h",
+          "sample_count": 4284,
+          "mae": 0.147,
+          "rmse": 0.306,
+          "wape_pct": 18.56,
+          "pinball_p10": 0.066,
+          "pinball_p50": 0.074,
+          "pinball_p90": 0.037,
+          "mean_pinball": 0.059,
+          "coverage_p10_p90_pct": 90.7,
+          "mean_interval_width": 0.886,
+          "baseline_mae": 0.733,
+          "mae_improvement_pct": 79.94
+        },
+        "mid_term": {
+          "bucket_name": "mid_term",
+          "horizon_range": "7-12h",
+          "sample_count": 4284,
+          "mae": 0.238,
+          "rmse": 0.49,
+          "wape_pct": 23.81,
+          "pinball_p10": 0.097,
+          "pinball_p50": 0.119,
+          "pinball_p90": 0.062,
+          "mean_pinball": 0.093,
+          "coverage_p10_p90_pct": 91.9,
+          "mean_interval_width": 1.357,
+          "baseline_mae": 0.825,
+          "mae_improvement_pct": 71.17
+        },
+        "day_ahead": {
+          "bucket_name": "day_ahead",
+          "horizon_range": "13-24h",
+          "sample_count": 8568,
+          "mae": 0.309,
+          "rmse": 0.624,
+          "wape_pct": 34.53,
+          "pinball_p10": 0.088,
+          "pinball_p50": 0.155,
+          "pinball_p90": 0.085,
+          "mean_pinball": 0.109,
+          "coverage_p10_p90_pct": 91.2,
+          "mean_interval_width": 1.394,
+          "baseline_mae": 0.779,
+          "mae_improvement_pct": 60.3
+        }
+      },
+      "notes": "Chronological evaluation on TEST_2025_UNTOUCHED. Non-crossing quantiles enforced."
+    }
+  },
+  "iex_clearing_price_inr_mwh_national": {
+    "origin_timestamp": "2025-06-15T12:00:00+05:30",
+    "target_name": "iex_clearing_price_inr_mwh",
+    "target_display_name": "IEX DAM Market Price",
+    "target_unit": "INR/MWh",
+    "cluster_id": "national",
+    "model_family": "HistGradientBoostingRegressor",
+    "training_date_range": {
+      "start": "2021-01-01",
+      "end": "2023-12-31"
+    },
+    "provenance": "SYNTHETIC",
+    "horizons": [
+      {
+        "horizon_hour": 1,
+        "target_timestamp": "2025-06-15T13:00:00+05:30",
+        "p10": 3596.188,
+        "p50": 3726.105,
+        "p90": 3889.341
+      },
+      {
+        "horizon_hour": 2,
+        "target_timestamp": "2025-06-15T14:00:00+05:30",
+        "p10": 3829.863,
+        "p50": 3963.109,
+        "p90": 4120.749
+      },
+      {
+        "horizon_hour": 3,
+        "target_timestamp": "2025-06-15T15:00:00+05:30",
+        "p10": 3934.905,
+        "p50": 4081.081,
+        "p90": 4202.371
+      },
+      {
+        "horizon_hour": 4,
+        "target_timestamp": "2025-06-15T16:00:00+05:30",
+        "p10": 4249.765,
+        "p50": 4307.668,
+        "p90": 4500.641
+      },
+      {
+        "horizon_hour": 5,
+        "target_timestamp": "2025-06-15T17:00:00+05:30",
+        "p10": 4571.071,
+        "p50": 4727.223,
+        "p90": 4873.204
+      },
+      {
+        "horizon_hour": 6,
+        "target_timestamp": "2025-06-15T18:00:00+05:30",
+        "p10": 4396.899,
+        "p50": 4515.733,
+        "p90": 4713.519
+      },
+      {
+        "horizon_hour": 7,
+        "target_timestamp": "2025-06-15T19:00:00+05:30",
+        "p10": 3696.728,
+        "p50": 3892.646,
+        "p90": 3982.707
+      },
+      {
+        "horizon_hour": 8,
+        "target_timestamp": "2025-06-15T20:00:00+05:30",
+        "p10": 3028.932,
+        "p50": 3150.133,
+        "p90": 3473.139
+      },
+      {
+        "horizon_hour": 9,
+        "target_timestamp": "2025-06-15T21:00:00+05:30",
+        "p10": 2613.597,
+        "p50": 2734.579,
+        "p90": 3473.139
+      },
+      {
+        "horizon_hour": 10,
+        "target_timestamp": "2025-06-15T22:00:00+05:30",
+        "p10": 2637.65,
+        "p50": 2758.682,
+        "p90": 3473.139
+      },
+      {
+        "horizon_hour": 11,
+        "target_timestamp": "2025-06-15T23:00:00+05:30",
+        "p10": 3062.331,
+        "p50": 3205.212,
+        "p90": 3573.801
+      },
+      {
+        "horizon_hour": 12,
+        "target_timestamp": "2025-06-16T00:00:00+05:30",
+        "p10": 3819.119,
+        "p50": 3977.74,
+        "p90": 4163.637
+      },
+      {
+        "horizon_hour": 13,
+        "target_timestamp": "2025-06-16T01:00:00+05:30",
+        "p10": 5079.954,
+        "p50": 5221.648,
+        "p90": 5521.123
+      },
+      {
+        "horizon_hour": 14,
+        "target_timestamp": "2025-06-16T02:00:00+05:30",
+        "p10": 5445.29,
+        "p50": 6522.023,
+        "p90": 6662.995
+      },
+      {
+        "horizon_hour": 15,
+        "target_timestamp": "2025-06-16T03:00:00+05:30",
+        "p10": 5445.29,
+        "p50": 7178.764,
+        "p90": 7303.203
+      },
+      {
+        "horizon_hour": 16,
+        "target_timestamp": "2025-06-16T04:00:00+05:30",
+        "p10": 5445.29,
+        "p50": 7178.764,
+        "p90": 7297.652
+      },
+      {
+        "horizon_hour": 17,
+        "target_timestamp": "2025-06-16T05:00:00+05:30",
+        "p10": 5445.29,
+        "p50": 6519.884,
+        "p90": 6671.58
+      },
+      {
+        "horizon_hour": 18,
+        "target_timestamp": "2025-06-16T06:00:00+05:30",
+        "p10": 5347.539,
+        "p50": 5542.649,
+        "p90": 5721.283
+      },
+      {
+        "horizon_hour": 19,
+        "target_timestamp": "2025-06-16T07:00:00+05:30",
+        "p10": 4516.859,
+        "p50": 4665.325,
+        "p90": 4833.203
+      },
+      {
+        "horizon_hour": 20,
+        "target_timestamp": "2025-06-16T08:00:00+05:30",
+        "p10": 3506.002,
+        "p50": 3646.37,
+        "p90": 3804.795
+      },
+      {
+        "horizon_hour": 21,
+        "target_timestamp": "2025-06-16T09:00:00+05:30",
+        "p10": 3503.455,
+        "p50": 3637.376,
+        "p90": 3825.043
+      },
+      {
+        "horizon_hour": 22,
+        "target_timestamp": "2025-06-16T10:00:00+05:30",
+        "p10": 3500.124,
+        "p50": 3661.536,
+        "p90": 3820.95
+      },
+      {
+        "horizon_hour": 23,
+        "target_timestamp": "2025-06-16T11:00:00+05:30",
+        "p10": 3494.368,
+        "p50": 3654.099,
+        "p90": 3819.992
+      },
+      {
+        "horizon_hour": 24,
+        "target_timestamp": "2025-06-16T12:00:00+05:30",
+        "p10": 3528.047,
+        "p50": 3660.121,
+        "p90": 3819.992
+      }
+    ],
+    "evaluation_metrics": {
+      "target_name": "iex_clearing_price_inr_mwh",
+      "target_unit": "INR/MWh",
+      "cluster_id": "national",
+      "evaluation_split": "TEST_2025_UNTOUCHED",
+      "sample_count": 17136,
+      "overall_mae": 98.726,
+      "overall_rmse": 169.794,
+      "overall_wape_pct": 2.23,
+      "pinball_p10": 41.224,
+      "pinball_p50": 49.363,
+      "pinball_p90": 33.061,
+      "mean_pinball": 41.216,
+      "coverage_p10_p90_pct": 83.4,
+      "mean_interval_width": 580.193,
+      "baseline_name": "SeasonalNaive24",
+      "baseline_mae": 141.558,
+      "mae_improvement_pct": 30.26,
+      "horizon_buckets": {
+        "near_term": {
+          "bucket_name": "near_term",
+          "horizon_range": "1-6h",
+          "sample_count": 4284,
+          "mae": 99.54,
+          "rmse": 181.042,
+          "wape_pct": 2.55,
+          "pinball_p10": 28.376,
+          "pinball_p50": 49.77,
+          "pinball_p90": 38.906,
+          "mean_pinball": 39.017,
+          "coverage_p10_p90_pct": 83.5,
+          "mean_interval_width": 494.795,
+          "baseline_mae": 145.175,
+          "mae_improvement_pct": 31.43
+        },
+        "mid_term": {
+          "bucket_name": "mid_term",
+          "horizon_range": "7-12h",
+          "sample_count": 4284,
+          "mae": 97.913,
+          "rmse": 157.762,
+          "wape_pct": 1.97,
+          "pinball_p10": 54.087,
+          "pinball_p50": 48.957,
+          "pinball_p90": 27.28,
+          "mean_pinball": 43.441,
+          "coverage_p10_p90_pct": 83.2,
+          "mean_interval_width": 665.648,
+          "baseline_mae": 138.324,
+          "mae_improvement_pct": 29.21
+        },
+        "day_ahead": {
+          "bucket_name": "day_ahead",
+          "horizon_range": "13-24h",
+          "sample_count": 8568,
+          "mae": 98.725,
+          "rmse": 169.786,
+          "wape_pct": 2.23,
+          "pinball_p10": 41.216,
+          "pinball_p50": 49.363,
+          "pinball_p90": 33.029,
+          "mean_pinball": 41.203,
+          "coverage_p10_p90_pct": 83.5,
+          "mean_interval_width": 580.164,
+          "baseline_mae": 141.366,
+          "mae_improvement_pct": 30.16
+        }
+      },
+      "notes": "Chronological evaluation on TEST_2025_UNTOUCHED. Non-crossing quantiles enforced."
+    }
+  }
+}

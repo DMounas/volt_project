@@ -146,6 +146,8 @@ class DataService:
             duplicate_blocks_count=diag.duplicate_blocks_count,
             out_of_order_blocks_count=diag.out_of_order_blocks_count,
             missing_blocks_details=diag.missing_blocks_details,
+            total_cleared_energy_mwh=diag.total_cleared_energy_mwh,
+            average_cleared_power_mw=diag.average_cleared_power_mw,
             min_hourly_price_inr_mwh=diag.min_hourly_price_inr_mwh,
             max_hourly_price_inr_mwh=diag.max_hourly_price_inr_mwh,
             mean_hourly_price_inr_mwh=diag.mean_hourly_price_inr_mwh,

@@ -69,3 +69,7 @@ data/processed/*
 data/synthetic/*
 !data/synthetic/.gitkeep
 !data/synthetic/data_manifest.json
+models/**/*.pkl
+!models/**/.gitkeep
+!models/**/*_meta.json
+!models/**/evaluation_metrics.json

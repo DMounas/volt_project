@@ -1,0 +1,51 @@
+{
+  "target_name": "swap_demand_mwh",
+  "target_unit": "MWh",
+  "cluster_id": "bengaluru",
+  "feature_names": [
+    "horizon",
+    "target_hour",
+    "target_dayofweek",
+    "target_month",
+    "target_is_weekend",
+    "sin_hour",
+    "cos_hour",
+    "sin_dayofweek",
+    "cos_dayofweek",
+    "sin_month",
+    "cos_month",
+    "solar_zenith_proxy",
+    "lag_at_origin",
+    "lag_origin_minus_1",
+    "lag_origin_minus_2",
+    "lag_same_hour_yesterday",
+    "lag_same_hour_last_week",
+    "roll_mean_24_at_origin",
+    "roll_std_24_at_origin",
+    "roll_max_24_at_origin",
+    "roll_min_24_at_origin",
+    "temp_at_origin",
+    "cloud_at_origin",
+    "wind_at_origin",
+    "humidity_at_origin",
+    "nwp_forecast_temp",
+    "nwp_forecast_cloud",
+    "nwp_forecast_wind"
+  ],
+  "quantiles": [
+    0.1,
+    0.5,
+    0.9
+  ],
+  "train_date_range": {
+    "start": "2021-01-01",
+    "end": "2023-12-31"
+  },
+  "model_family": "HistGradientBoostingRegressor",
+  "package_versions": {
+    "scikit-learn": "1.8.0",
+    "numpy": "2.4.4"
+  },
+  "seed": 42,
+  "provenance": "SYNTHETIC"
+}

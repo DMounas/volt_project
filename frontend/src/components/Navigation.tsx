@@ -17,7 +17,7 @@ export const Navigation: React.FC<Props> = ({ activeTab, onSelectTab }) => {
   const tabs: { key: TabKey; label: string; phase: string; activePhase: boolean }[] = [
     { key: 'overview', label: 'Overview', phase: 'Phase 1 Active', activePhase: true },
     { key: 'simulation', label: 'Live Simulation', phase: 'Phase 4', activePhase: false },
-    { key: 'forecasts', label: 'Forecasts', phase: 'Phase 3', activePhase: false },
+    { key: 'forecasts', label: 'Forecasts', phase: 'Phase 3 Active', activePhase: true },
     { key: 'optimization', label: 'Optimization Decisions', phase: 'Phase 5', activePhase: false },
     { key: 'batteries', label: 'Battery Intelligence', phase: 'Phase 4', activePhase: false },
     { key: 'reports', label: 'Reports', phase: 'Phase 7', activePhase: false },

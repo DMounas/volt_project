@@ -49,9 +49,10 @@ Electricity wholesale clearing prices from the Indian Energy Exchange (IEX).
 | `market_record_id` | `BIGSERIAL` (PK) | — | — | Internal record ID |
 | `timestamp` | `TIMESTAMPTZ` | — | OBSERVED / SYNTHETIC | Delivery interval start time |
 | `market` | `VARCHAR(16)` | — | OBSERVED | Market segment: `DAM` (Day-Ahead) or `RTM` (Real-Time) |
-| `block_minutes` | `INTEGER` | minute | OBSERVED | Granularity: 15-minute raw IEX block or 60-minute aggregated |
+| `time_block` | `INTEGER` | 1..96 | OBSERVED | Settlement time block index within trading day |
 | `price_inr_mwh` | `NUMERIC(10,2)` | INR/MWh | OBSERVED / SYNTHETIC | Market clearing price per MWh |
-| `cleared_volume_mw` | `NUMERIC(10,2)` | MW | OBSERVED / SYNTHETIC | Aggregate cleared trade volume |
+| `cleared_volume_mw` | `NUMERIC(10,2)` | MW | OBSERVED / SYNTHETIC | Scheduled active power trade volume over 15-min interval |
+| `cleared_energy_mwh` | `NUMERIC(10,3)` | MWh | OBSERVED / SYNTHETIC | Cleared electrical energy = `cleared_volume_mw * 0.25 h` |
 | `source` | `VARCHAR(64)` | — | OBSERVED / SYNTHETIC | Data source citation or generator seed |
 
 ### 2.2 `procurement_contract`
@@ -195,3 +196,34 @@ Auditable meter-boundary reconciliation for each cluster and hourly simulation s
 | `swap_energy_equivalent_delivered_mwh` | `NUMERIC(10,4)` | MWh | SYNTHETIC | Usable energy (2.25 kWh/pack) issued to swapping customers |
 | `residual_abs_mwh` | `NUMERIC(10,5)` | MWh | SYNTHETIC | Absolute conservation residual: `\|total_supply - total_demand\|` |
 | `is_reconciled` | `BOOLEAN` | — | SYNTHETIC | True if `residual_abs_mwh <= 0.005 MWh` |
+
+---
+
+## 7. Probabilistic Forecasting Entities (Phase 3)
+
+### 7.1 `forecast_trajectory_point`
+Point and quantile interval forecasts for rolling 24-hour horizon windows ($h \in [1, 24]$).
+
+| Field | Type | Unit | Provenance | Description |
+|---|---|---|---|---|
+| `origin_timestamp` | `TIMESTAMPTZ` | — | SYNTHETIC | Timestamp at which forecast is generated (information boundary) |
+| `horizon_hour` | `INTEGER` | 1..24 | — | Lead time ahead in hours |
+| `target_timestamp` | `TIMESTAMPTZ` | — | SYNTHETIC | Future target delivery time = `origin_timestamp + horizon_hour` |
+| `cluster_id` | `VARCHAR(32)` | — | OBSERVED | Cluster identifier or `national` for market prices |
+| `target_name` | `VARCHAR(64)` | — | OBSERVED | Canonical vector: `fast_charge_demand_mwh`, `swap_demand_mwh`, `solar_available_mwh`, `wind_available_mwh`, `iex_clearing_price_inr_mwh` |
+| `p10` | `NUMERIC(10,3)` | specified | SYNTHETIC | 10th percentile lower quantile estimate ($\ge 0$) |
+| `p50` | `NUMERIC(10,3)` | specified | SYNTHETIC | 50th percentile median central forecast ($\ge p10$) |
+| `p90` | `NUMERIC(10,3)` | specified | SYNTHETIC | 90th percentile upper quantile estimate ($\ge p50$) |
+| `model_family` | `VARCHAR(64)` | — | SYNTHETIC | Model architecture: `HistGradientBoostingRegressor` |
+
+### 7.2 `weather_covariates`
+Time-aligned physical atmospheric predictors in `cluster_hourly`.
+
+| Field | Type | Unit | Provenance | Description |
+|---|---|---|---|---|
+| `ambient_temp_c` | `NUMERIC(5,1)` | °C | SYNTHETIC | Surface dry-bulb temperature |
+| `relative_humidity_pct` | `NUMERIC(5,1)` | % | SYNTHETIC | Relative atmospheric humidity [15.0, 98.0] |
+| `cloud_cover_pct` | `NUMERIC(5,1)` | % | SYNTHETIC | Total fractional cloud attenuation [5.0, 100.0] |
+| `precipitation_mm` | `NUMERIC(6,1)` | mm | SYNTHETIC | Hourly accumulated rainfall |
+| `solar_irradiance_w_m2` | `NUMERIC(7,1)` | W/m² | SYNTHETIC | Global horizontal irradiance proxy (strictly 0 at night) |
+| `wind_speed_m_s` | `NUMERIC(5,2)` | m/s | SYNTHETIC | 10m hub-height wind speed [0.5, 22.0] |

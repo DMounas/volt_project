@@ -16,6 +16,8 @@ class IEXDiagnosticsResponse(BaseModel):
     duplicate_blocks_count: int
     out_of_order_blocks_count: int
     missing_blocks_details: list[dict[str, Any]]
+    total_cleared_energy_mwh: float = 0.0
+    average_cleared_power_mw: float = 0.0
     min_hourly_price_inr_mwh: float
     max_hourly_price_inr_mwh: float
     mean_hourly_price_inr_mwh: float

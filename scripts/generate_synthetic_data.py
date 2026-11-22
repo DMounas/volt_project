@@ -28,14 +28,14 @@ def parse_args():
     parser.add_argument(
         "--start-date",
         type=str,
-        default="2022-01-01",
-        help="Start date YYYY-MM-DD (default: 2022-01-01)",
+        default="2021-01-01",
+        help="Start date YYYY-MM-DD (default: 2021-01-01)",
     )
     parser.add_argument(
         "--end-date",
         type=str,
-        default="2026-12-31 23:00:00",
-        help="End date YYYY-MM-DD HH:MM:SS (default: 2026-12-31 23:00:00)",
+        default="2025-12-31 23:00:00",
+        help="End date YYYY-MM-DD HH:MM:SS (default: 2025-12-31 23:00:00)",
     )
     parser.add_argument(
         "--output-dir",
@@ -57,7 +57,7 @@ def parse_args():
     parser.add_argument(
         "--full",
         action="store_true",
-        help="Generate complete 5-year dataset (2022-01-01 to 2026-12-31, 219,120 cluster-hours)",
+        help="Generate complete 5-year completed calendar dataset (2021-01-01 to 2025-12-31, 219,120 cluster-hours)",
     )
     parser.add_argument(
         "--overwrite",

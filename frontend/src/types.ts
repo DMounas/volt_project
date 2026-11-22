@@ -221,8 +221,56 @@ export interface IEXDiagnosticsResponse {
   duplicate_blocks_count: number;
   out_of_order_blocks_count: number;
   missing_blocks_details: Array<Record<string, any>>;
+  total_cleared_energy_mwh?: number;
+  average_cleared_power_mw?: number;
   min_hourly_price_inr_mwh: number;
   max_hourly_price_inr_mwh: number;
   mean_hourly_price_inr_mwh: number;
+  provenance: Provenance;
+}
+
+export interface TargetMetadata {
+  target_name: string;
+  display_name: string;
+  unit: string;
+  scope: string;
+  non_negative: boolean;
+}
+
+export interface HorizonPoint {
+  horizon_hour: number;
+  target_timestamp: string;
+  p10: number;
+  p50: number;
+  p90: number;
+}
+
+export interface ForecastResponse {
+  origin_timestamp: string;
+  target_name: string;
+  target_display_name: string;
+  target_unit: string;
+  cluster_id: string;
+  model_family: string;
+  training_date_range: { start: string; end: string };
+  provenance: Provenance;
+  horizons: HorizonPoint[];
+  evaluation_metrics?: Record<string, any>;
+}
+
+export interface ForecastSummaryResponse {
+  available_targets: TargetMetadata[];
+  available_clusters: string[];
+  training_date_range: { start: string; end: string };
+  validation_date_range: { start: string; end: string };
+  test_date_range: { start: string; end: string };
+  model_family: string;
+  provenance: Provenance;
+  total_models_trained: number;
+}
+
+export interface ForecastMetricsResponse {
+  evaluation_split: string;
+  metrics: Record<string, any>;
   provenance: Provenance;
 }

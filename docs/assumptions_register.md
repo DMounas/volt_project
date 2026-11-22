@@ -136,3 +136,33 @@ This document lists every unknown parameter, the engineering rationale for its b
   * Measured Losses: 10.18% (Residual: +0.18%)
   * Total Objective Error: 0.58%
 - **Rationale:** Calibrated via bounded parameter optimization to reconstruct incumbent performance without post-hoc forcing or metric overriding.
+
+---
+
+### 2.9 Non-Identifiability & Storage Reserve Accounting (Remediation A2 & A4)
+- **Parameter Non-Identifiability:**
+  * Five physical parameters (`station_availability_factor`, `charger_efficiency`, `swap_charge_efficiency`, `auxiliary_load_pct`, `distribution_loss_pct`) were fitted against two aggregate scalar targets (78.0% reliability, 10.0% losses).
+  * This is an underdetermined system with non-unique parameter identifiability; the calibrated set represents a plausible reference-matching configuration within engineering bounds (`SYNTHETIC_CALIBRATION`), not measured empirical hardware truth.
+- **Combined Storage & Reserve Allocation:**
+  * Combined Storage (`OBSERVED`): 600.0 MWh network-wide.
+  * Asset Split (`ASSUMED`): 50/50 baseline &rarr; 300.0 MWh stationary BESS + 300.0 MWh swap pack inventory.
+  * 5% Reserve Obligation (`OBSERVED` rule applied to `ASSUMED` split): 15.0 MWh BESS reserve + 15.0 MWh swap inventory reserve network-wide (30.0 MWh combined).
+  * Per-Cluster Allocation (5 equal clusters): 3.0 MWh BESS reserve + 3.0 MWh swap reserve per cluster = 6.0 MWh total reserve per cluster.
+  * Invariant: Sum across 5 clusters identically equals 15.0 MWh BESS and 15.0 MWh swap inventory (30.0 MWh combined network reserve).
+
+---
+
+### 2.10 Phase 3 Probabilistic Forecasting & Quantile Uncertainty
+- **Canonical Operational Vectors (`OBSERVED` scope):**
+  1. `fast_charge_demand_mwh` (MWh/h, cluster-level)
+  2. `swap_demand_mwh` (MWh/h, cluster-level)
+  3. `solar_available_mwh` (MWh/h, cluster-level)
+  4. `wind_available_mwh` (MWh/h, cluster-level)
+  5. `iex_clearing_price_inr_mwh` (INR/MWh, national market)
+- **Model Family (`SYNTHETIC` implementation):** Tree-based quantile gradient boosting via scikit-learn `HistGradientBoostingRegressor(loss='quantile')` with P10, P50, and P90 quantiles.
+- **Chronological Data Split:**
+  * Train: 2021-01-01 to 2023-12-31 (3 years)
+  * Validation: 2024-01-01 to 2024-12-31 (1 year, leap year calendar)
+  * Test: 2025-01-01 to 2025-12-31 (1 year, untouched test period)
+- **Operational NWP Weather Forecast Error Proxy (`ASSUMED`):** Day-ahead weather forecast uncertainty modeled as zero-mean Gaussian perturbation whose variance scales with lead time $h \in [1, 24]$.
+- **Quantile Post-Processing (`ASSUMED` guardrails):** Monotonic sorting enforcing $P10 \le P50 \le P90$; physical clipping to $\ge 0.0$; solar nighttime cutoff strictly set to $0.0\text{ MWh}$ for hours 19:00 to 05:00 IST.

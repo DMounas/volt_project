@@ -103,8 +103,8 @@ class SyntheticDataGenerator:
     def __init__(
         self,
         seed: int = 42,
-        start_date: str = "2022-01-01",
-        end_date: str = "2026-12-31 23:00:00",
+        start_date: str = "2021-01-01",
+        end_date: str = "2025-12-31 23:00:00",
         configs_dir: Optional[Path] = None,
     ):
         self.seed = seed
@@ -373,8 +373,11 @@ class SyntheticDataGenerator:
                     "cluster_id": cluster_id,
                     "cluster_name": profile.name,
                     "temperature_c": temp_c.round(1),
+                    "ambient_temp_c": temp_c.round(1),
                     "humidity_pct": humidity.round(1),
+                    "relative_humidity_pct": humidity.round(1),
                     "rainfall_mm": rain_mm,
+                    "precipitation_mm": rain_mm,
                     "cloud_cover_pct": cloud_pct.round(1),
                     "solar_irradiance_w_m2": solar_irradiance.round(1),
                     "wind_speed_m_s": wind_speed.round(2),
@@ -428,11 +431,13 @@ class SyntheticDataGenerator:
 
         clearing_price = np.clip(base_price + price_noise + spike_amount, 1800.0, 18000.0).round(2)
 
-        # Volume: national aggregate cleared volume (MWh per 15-minute block)
-        base_volume = 12500.0 * (0.80 + 0.30 * morning_peak + 0.35 * evening_peak)
-        volume_mwh = np.clip(
-            base_volume + rng.normal(0.0, 500.0, size=n_blocks), 4000.0, 22000.0
+        # Volume: national aggregate cleared power schedule (MW per 15-minute block)
+        base_power = 12500.0 * (0.80 + 0.30 * morning_peak + 0.35 * evening_peak)
+        cleared_volume_mw = np.clip(
+            base_power + rng.normal(0.0, 500.0, size=n_blocks), 4000.0, 22000.0
         ).round(2)
+        # Dimensional contract: 15 minutes = 0.25 hours -> Energy (MWh) = Power (MW) * 0.25
+        cleared_energy_mwh = (cleared_volume_mw * 0.25).round(3)
 
         return pd.DataFrame(
             {
@@ -440,7 +445,9 @@ class SyntheticDataGenerator:
                 "time_block": time_block,
                 "market": "DAM",
                 "clearing_price_inr_mwh": clearing_price,
-                "cleared_volume_mwh": volume_mwh,
+                "cleared_volume_mw": cleared_volume_mw,
+                "cleared_energy_mwh": cleared_energy_mwh,
+                "cleared_volume_mwh": cleared_energy_mwh,  # Backward compatibility alias
                 "provenance": Provenance.SYNTHETIC.value,
             }
         )

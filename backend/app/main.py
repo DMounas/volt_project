@@ -14,6 +14,7 @@ from backend.app.api.routes import (
     case_router,
     clusters_router,
     data_router,
+    forecast_router,
     health_router,
     iex_router,
     scenarios_router,
@@ -60,6 +61,7 @@ app.include_router(scenarios_router, prefix=api_v1_prefix)
 app.include_router(data_router, prefix=api_v1_prefix)
 app.include_router(iex_router, prefix=api_v1_prefix)
 app.include_router(baseline_router, prefix=api_v1_prefix)
+app.include_router(forecast_router, prefix=api_v1_prefix)
 
 
 @app.get("/", tags=["Root"])

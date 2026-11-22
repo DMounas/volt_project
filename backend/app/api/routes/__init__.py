@@ -5,6 +5,7 @@ from backend.app.api.routes.baseline_routes import router as baseline_router
 from backend.app.api.routes.case import router as case_router
 from backend.app.api.routes.clusters import router as clusters_router
 from backend.app.api.routes.data_routes import router as data_router
+from backend.app.api.routes.forecast_routes import router as forecast_router
 from backend.app.api.routes.health import router as health_router
 from backend.app.api.routes.scenarios import router as scenarios_router
 
@@ -16,4 +17,5 @@ __all__ = [
     "data_router",
     "iex_router",
     "baseline_router",
+    "forecast_router",
 ]

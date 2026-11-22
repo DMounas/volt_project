@@ -52,6 +52,23 @@ storage_asset_split:
       base: 300.0  # 50% share
       high: 450.0  # 75% share
 
+emergency_reserve_policy:
+  description: "Enforcement of the mandatory 5.0% emergency reserve obligation across stationary storage and swap pack inventory"
+  provenance: "ASSUMED"
+  rationale: "The case study mandates a 5% reserve of applicable capacity and swap-pack inventory uncommitted for emergency services. The case provides this as a network-wide obligation without specifying city-level sub-quotas. Under equal cluster allocation (5 clusters), each cluster maintains a 5% reserve locally (3.0 MWh BESS + 3.0 MWh swap inventory = 6.0 MWh total per cluster), such that the sum across all 5 clusters identically equals the network-wide 5% obligation (15.0 MWh BESS + 15.0 MWh swap inventory = 30.0 MWh total reserve). The 15 MWh figure represents the network-wide asset pool reserve, NOT an individual per-cluster quota."
+  reserve_fraction: 0.05
+  scope: "enforced_per_cluster_summing_to_network"
+  network_total:
+    stationary_bess_reserve_mwh: 15.0
+    swap_pack_reserve_mwh: 15.0
+    combined_reserve_mwh: 30.0
+  per_cluster_allocation:
+    clusters_count: 5
+    stationary_bess_reserve_mwh: 3.0
+    swap_pack_reserve_mwh: 3.0
+    swap_pack_reserve_count: 1200
+    combined_reserve_mwh: 6.0
+
 stationary_bess_parameters:
   description: "Operational and physical parameters for stationary battery energy storage systems"
   provenance: "ASSUMED"

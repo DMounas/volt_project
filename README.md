@@ -98,13 +98,15 @@ volt/
 │       ├── customer_requests.csv.gz    # Representative hourly charging requests
 │       ├── swap_events.csv.gz          # Hourly swap events and pack transitions
 │       └── data_manifest.json          # Integrity hashes, row counts, and date bounds
+├── models/
+│   └── forecasting/                   # Trained Phase 3 quantile model artifacts (*.pkl) & metrics
 ├── backend/
 │   ├── Dockerfile
 │   ├── app/
-│   │   ├── main.py                    # FastAPI application with Phase 1 & 2 routes
-│   │   ├── api/routes/                # Endpoints (/health, /case, /clusters, /scenarios, /data, /baseline)
+│   │   ├── main.py                    # FastAPI application with Phase 1, 2, & 3 routes
+│   │   ├── api/routes/                # Endpoints (/health, /case, /clusters, /scenarios, /data, /baseline, /forecasts)
 │   │   ├── schemas/                   # Pydantic schemas with provenance tracking
-│   │   ├── services/                  # Configuration & synthetic data services
+│   │   ├── services/                  # Configuration, data & forecasting services
 │   │   └── db/                        # PostgreSQL connection pool & session manager
 │   └── tests/                         # Backend API & service tests
 ├── engine/
@@ -112,9 +114,14 @@ volt/
 │   ├── units.py                       # Unit conversion utilities (MW, MWh, kWh, INR)
 │   ├── validation.py                  # Physical constraint validators
 │   ├── data/                          # Synthetic data generator & 15-min IEX adapters
-│   │   ├── synthetic_generator.py     # Deterministic 5-city vectorized synthetic data generator
-│   │   └── iex_adapter.py             # IEX 15-min to hourly weighted aggregation adapter
-│   ├── forecasting/                   # Demand, price & renewable forecasters
+│   │   ├── synthetic_generator.py     # Deterministic 5-city vectorized synthetic data generator (2021-2025)
+│   │   └── iex_adapter.py             # IEX 15-min to hourly weighted aggregation adapter with dimensional contract
+│   ├── forecasting/                   # Probabilistic quantile forecasters & features
+│   │   ├── features.py                # Strictly leakage-free temporal, calendar, lag & NWP feature extraction
+│   │   ├── baselines.py               # Seasonal-naive (24h & 168h) benchmarks
+│   │   ├── quantile_model.py          # HistGradientBoosting quantile model (P10, P50, P90) with non-crossing logic
+│   │   ├── metrics.py                 # Pinball loss, coverage, sharpness, and horizon-bucket evaluation
+│   │   └── pipeline.py                # Multi-vector pipeline orchestrating 5 targets across all clusters
 │   ├── scenarios/                     # Multi-vector scenario generator
 │   ├── customer/                      # Customer flexibility & incentive bounds
 │   ├── batteries/                     # Separate BESS and swap pack models
@@ -129,14 +136,17 @@ volt/
 ├── frontend/                          # React + TypeScript dashboard (Vite + TailwindCSS)
 ├── scripts/
 │   ├── generate_synthetic_data.py     # CLI to generate reproducible 5-city dataset
-│   └── run_baseline_calibration.py    # CLI to calibrate BAU policy to 78% reliability & 10% losses
+│   ├── run_baseline_calibration.py    # CLI to calibrate BAU policy to 78% reliability & 10% losses
+│   └── train_forecasting_models.py    # CLI to train & evaluate Phase 3 quantile forecasting models
 ├── reports/
 │   ├── phase2_data_quality.md         # Synthetic data quality audit and integrity hashes
-│   └── phase2_baseline_calibration.md # Calibration residuals and meter reconciliation report
+│   ├── phase2_baseline_calibration.md # Calibration residuals, identifiability disclosure & reserve arithmetic
+│   ├── phase3_forecasting.md          # Multi-vector forecasting performance report & backtest metrics
+│   └── phase3_model_card.md           # Model card documenting specifications & boundaries
 └── docs/
     ├── data_dictionary.md             # Logical entity schemas & energy balance records
     ├── assumptions_register.md        # Register of all unsupplied assumptions & calibrated params
-    └── api_contracts.md               # API endpoint specifications (v1 to v8)
+    └── api_contracts.md               # API endpoint specifications (v1 to v12)
 ```
 
 ---
@@ -170,14 +180,20 @@ Calibrate the physical dispatch simulation to reproduce the historical reference
 python scripts/run_baseline_calibration.py
 ```
 
-### Step 4: Run Tests
+### Step 4: Train Probabilistic Forecasting Models
+Train and evaluate multi-vector quantile models across all 5 canonical targets:
+```powershell
+python scripts/train_forecasting_models.py
+```
+
+### Step 5: Run Tests
 From the project root:
 ```powershell
 python -m pytest
 ```
-Output confirms all 42 tests pass across engine units, physical validations, synthetic generator, IEX adapter, BAU policy, energy reconciliation, and backend API routes.
+Output confirms all 55 tests pass across engine units, physical validations, synthetic generator, IEX adapter, BAU policy, energy reconciliation, forecasting models, and backend API routes.
 
-### Step 5: Running the Backend
+### Step 6: Running the Backend
 From the project root:
 ```powershell
 python -m uvicorn backend.app.main:app --reload --host 0.0.0.0 --port 8000
@@ -192,14 +208,18 @@ Key API routes available:
 - `GET /api/v1/data/iex/diagnostics` — IEX 15-min adapter validation diagnostics
 - `GET /api/v1/baseline/calibration` — Calibration parameters and residuals
 - `GET /api/v1/baseline/simulation` — Simulated hourly dispatch and energy balance
+- `GET /api/v1/forecasts/summary` — Model inventory and training date ranges
+- `GET /api/v1/forecasts/latest` — Rolling 24-hour P10, P50, and P90 forecast
+- `POST /api/v1/forecasts/run` — Dynamic rolling forecast execution
+- `GET /api/v1/forecasts/metrics` — Chronological backtest evaluation metrics
 
-### Step 6: Running the Frontend
+### Step 7: Running the Frontend
 ```powershell
 cd frontend
 npm install
 npm run dev
 ```
-Open `http://localhost:5173` in your browser to inspect the interactive digital twin dashboard.
+Open `http://localhost:5173` in your browser to inspect the interactive digital twin dashboard (Overview & Forecasts tabs).
 
 ---
 
@@ -229,11 +249,29 @@ Calibration was executed via bounded grid search over physical operational param
 
 ---
 
-## 7. Current Implementation Boundaries (Phase 2)
+## 7. Phase 3 Probabilistic Forecasting Results
 
-1. **Forecasting Models (Phase 3):** LightGBM/CatBoost quantile forecasters and neural temporal models are deferred to Phase 3. Forecasters are currently stubbed via runtime protocols.
-2. **Dynamic Tariffs & Flexibility (Phase 4):** Customer flexibility response models and price-elastic demand shifting will be integrated in Phase 4.
-3. **MILP Mathematical Optimization (Phase 5):** The dispatch in Phase 2 utilizes a deterministic heuristic Business-as-Usual (BAU) baseline. Pyomo MILP optimization and CVaR risk formulation will be implemented in Phase 5.
-4. **Rolling-Horizon MPC (Phase 6):** Feedback-driven rolling-horizon closed-loop MPC orchestration is scheduled for Phase 6.
-5. **Live Grid Execution:** VOLT is an analytical digital twin and simulation prototype. It does not interface with live SCADA, hardware switches, or submit binding financial bids to the Indian Energy Exchange.
-6. **Target Feasibility:** Stated business targets (89.7% reliability, 8.0% losses, >12% EBITDA) are long-term business goals evaluated during optimized simulation, not baseline achievements.
+Rolling 24-hour ahead quantile models (`HistGradientBoostingRegressor`) were evaluated on the **untouched 2025 calendar year test dataset** against incumbent `SeasonalNaive24` baselines:
+
+| Target Name | Operational Scope | Unit | Model P50 MAE | Baseline MAE | MAE Improvement | P10–P90 Coverage |
+|---|---|---|---|---|---|---|
+| **Fast-Charge Demand** | 5 Metro Clusters | MWh | **1.21 – 1.34** | 2.25 – 2.38 | **+43.7% to +46.5%** | **80.8% – 81.7%** |
+| **Battery Swap Demand** | 5 Metro Clusters | MWh | **0.091 – 0.096** | 0.125 – 0.131 | **+26.5% to +27.5%** | **79.5% – 80.9%** |
+| **Solar Availability** | 5 Metro Clusters | MWh | **0.96 – 1.08** | 2.16 – 2.34 | **+54.0% to +56.5%** | **93.6% – 94.3%** |
+| **Wind Availability** | 5 Metro Clusters | MWh | **0.25 – 0.77** | 0.78 – 2.44 | **+67.8% to +68.8%** | **78.1% – 89.7%** |
+| **IEX DAM Market Price** | National Market | INR/MWh | **98.73** | 141.56 | **+30.3%** | **83.4%** |
+
+### Key Methodological Safeguards:
+1. **Strict Chronological Splitting:** Training: 2021–2023 (3 years), Validation: 2024 (1 leap year), Untouched Test: 2025 (1 year). Zero target leakage.
+2. **Non-Crossing Guarantee:** Pointwise sorting guarantees $\hat{y}_{P10} \le \hat{y}_{P50} \le \hat{y}_{P90}$ across all horizon steps.
+3. **Physical Non-Negativity:** Predictions are strictly clipped to $\ge 0.0$; solar availability is strictly $0.0\text{ MWh}$ during night hours (19:00 to 05:00 IST).
+
+---
+
+## 8. Current Implementation Boundaries (Phase 3)
+
+1. **Customer Flexibility (Phase 4):** Customer price-elastic response and dynamic tariff shifting will be integrated in Phase 4.
+2. **MILP Mathematical Optimization (Phase 5):** The dispatch currently utilizes a deterministic heuristic Business-as-Usual (BAU) baseline. Pyomo MILP optimization and CVaR risk formulation will be implemented in Phase 5.
+3. **Rolling-Horizon MPC (Phase 6):** Feedback-driven rolling-horizon closed-loop MPC orchestration is scheduled for Phase 6.
+4. **Live Grid Execution:** VOLT is an analytical digital twin and simulation prototype. It does not interface with live SCADA, hardware switches, or submit binding financial bids to the Indian Energy Exchange.
+5. **Target Feasibility:** Stated business targets (89.7% reliability, 8.0% losses, >12% EBITDA) are long-term business goals evaluated during optimized simulation, not baseline achievements.

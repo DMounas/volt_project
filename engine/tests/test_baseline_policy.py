@@ -57,13 +57,60 @@ def test_baseline_preserves_emergency_reserve(sample_cluster_slice):
     records, summary = engine.run_simulation(sample_cluster_slice, seed=42)
 
     assert summary["reserve_compliance"] is True
-    # Verify ready pack inventory stays above 5% reserve threshold (1,200 packs)
+    # Verify ready pack inventory stays above 5% reserve threshold (1,200 packs = 3.0 MWh per cluster)
     for cid, ready in summary["final_ready_packs"].items():
         assert ready >= 1200, f"Cluster {cid} ready packs {ready} fell below 1,200 reserve"
 
-    # Verify BESS SOC never drops below 15% (10% min SOC + 5% reserve)
+    # Verify BESS SOC never drops below 15% (10% min SOC + 5% reserve = 3.0 MWh reserve)
     for cid, soc in summary["final_bess_soc"].items():
         assert soc >= 0.15, f"Cluster {cid} BESS SOC {soc} fell below 0.15 reserve threshold"
+
+
+@pytest.mark.unit
+def test_reserve_invariants_and_accounting(sample_cluster_slice):
+    """Verify storage split and 5% reserve arithmetic across network and clusters.
+
+    CRITICAL RESERVE INVARIANT:
+    - Case provides 600 MWh combined storage (assumed 50/50: 300 MWh BESS + 300 MWh swap packs).
+    - Case mandates 5% reserve = 15.0 MWh BESS reserve + 15.0 MWh swap reserve network-wide.
+    - Across 5 clusters (60 MWh each): reserve is exactly 3.0 MWh BESS + 3.0 MWh swap per cluster.
+    - Sum across 5 clusters MUST exactly equal the 15.0 MWh network reserve (never 15 MWh per city).
+    """
+    config = BaselineConfig()
+    n_clusters = 5
+
+    # 1. Stationary BESS arithmetic
+    bess_per_cluster_mwh = config.bess_storage_capacity_mwh  # 60.0 MWh
+    bess_network_total_mwh = bess_per_cluster_mwh * n_clusters  # 300.0 MWh
+    assert bess_network_total_mwh == 300.0
+
+    bess_reserve_per_cluster_mwh = bess_per_cluster_mwh * config.emergency_reserve_pct  # 3.0 MWh
+    bess_reserve_network_mwh = bess_reserve_per_cluster_mwh * n_clusters  # 15.0 MWh
+    assert bess_reserve_per_cluster_mwh == 3.0
+    assert bess_reserve_network_mwh == 15.0
+
+    # 2. Swap Pack inventory arithmetic
+    packs_per_cluster = config.total_packs  # 24,000 packs
+    total_network_packs = packs_per_cluster * n_clusters  # 120,000 packs
+    assert total_network_packs == 120000
+
+    swap_mwh_per_cluster = (packs_per_cluster * config.pack_nominal_kwh) / 1000.0  # 60.0 MWh
+    swap_network_total_mwh = swap_mwh_per_cluster * n_clusters  # 300.0 MWh
+    assert swap_network_total_mwh == 300.0
+
+    swap_reserve_packs_per_cluster = int(packs_per_cluster * config.emergency_reserve_pct)  # 1,200 packs
+    swap_reserve_per_cluster_mwh = (swap_reserve_packs_per_cluster * config.pack_nominal_kwh) / 1000.0  # 3.0 MWh
+    swap_reserve_network_mwh = swap_reserve_per_cluster_mwh * n_clusters  # 15.0 MWh
+    assert swap_reserve_packs_per_cluster == 1200
+    assert swap_reserve_per_cluster_mwh == 3.0
+    assert swap_reserve_network_mwh == 15.0
+
+    # 3. Combined network storage and reserve invariants
+    combined_network_storage = bess_network_total_mwh + swap_network_total_mwh
+    combined_network_reserve = bess_reserve_network_mwh + swap_reserve_network_mwh
+    assert combined_network_storage == 600.0
+    assert combined_network_reserve == 30.0  # Exactly 5% of 600 MWh
+    assert combined_network_reserve == 0.05 * combined_network_storage
 
 
 @pytest.mark.unit
