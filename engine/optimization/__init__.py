@@ -8,17 +8,51 @@ Responsibilities:
 - Clear causality breakdown: Reason codes and binding constraint identification for each decision.
 """
 
-from typing import Any, Protocol, runtime_checkable
+from engine.optimization.schemas import (
+    BESSInitialState,
+    ClusterDailySchedule,
+    ClusterHorizonInput,
+    DynamicTariffTier,
+    HourlyClusterDecision,
+    OptimizationKPIs,
+    OptimizationMode,
+    OptimizationResult,
+    ScenarioWeight,
+    SolverMetadata,
+    SolverStatus,
+    SwapInitialState,
+)
+from engine.optimization.cohorts import CohortAggregator, ServiceCohort
+from engine.optimization.model_builder import ModelBuilder
+from engine.optimization.objective import ObjectiveBuilder
+from engine.optimization.solver import SolverManager
+from engine.optimization.extract import SolutionExtractor
+from engine.optimization.validation import OptimizationValidator
+from engine.optimization.fallback import HeuristicFallbackScheduler
+from engine.optimization.comparison import PolicyComparisonEngine
+from engine.optimization.pipeline import OptimizationPipeline
 
-
-@runtime_checkable
-class OptimizerProtocol(Protocol):
-    """Protocol for the MILP energy orchestrator."""
-
-    def build_model(self, parameters: dict[str, Any]) -> Any:
-        """Construct the mathematical model for the planning horizon."""
-        ...
-
-    def solve(self, timeout_seconds: int = 60) -> dict[str, Any]:
-        """Solve the optimization problem and return decision variables with explanations."""
-        ...
+__all__ = [
+    "BESSInitialState",
+    "ClusterDailySchedule",
+    "ClusterHorizonInput",
+    "DynamicTariffTier",
+    "HourlyClusterDecision",
+    "OptimizationKPIs",
+    "OptimizationMode",
+    "OptimizationResult",
+    "ScenarioWeight",
+    "SolverMetadata",
+    "SolverStatus",
+    "SwapInitialState",
+    "CohortAggregator",
+    "ServiceCohort",
+    "ModelBuilder",
+    "ObjectiveBuilder",
+    "SolverManager",
+    "SolutionExtractor",
+    "OptimizationValidator",
+    "HeuristicFallbackScheduler",
+    "PolicyComparisonEngine",
+    "OptimizationPipeline",
+]

@@ -198,3 +198,38 @@ This document lists every unknown parameter, the engineering rationale for its b
 - Customer retail tariff revenue ($E_{\text{delivered}} \times T_{\text{final}}$) and voluntary flexibility incentive expenditures ($E_{\text{deferred}} \times I_{\text{rate}}$) are distinct accounting lines.
 - Incentives are never subtracted from retail tariffs into a single blended rate.
 - If operational wholesale cost inputs are missing, incentive offers return `NOT_EVALUABLE` rather than fabricating positive net value.
+
+
+---
+
+### 2.12 Phase 5 Mathematical Optimization (MILP), CVaR & Invariants
+
+#### Stationary BESS Technical & Operating Bounds (`ASSUMED`)
+- **Installed Capacity:** 60.0 MWh per cluster (300.0 MWh total across 5 clusters).
+- **Power Rating:** 30.0 MW continuous charge / 30.0 MW continuous discharge (0.5 C-rate).
+- **Efficiency:** AC-to-DC charge $\eta = 0.93$; DC-to-AC discharge $\eta = 0.93$ (roundtrip $\approx 86.5\%$).
+- **Mandatory Emergency Reserve Floor:** $\ge 3.0\text{ MWh}$ ($60.0\text{ MWh} \times 0.05$) preserved every hour.
+- **Maximum Operational SOC Ceiling:** $\le 54.0\text{ MWh}$ ($60.0\text{ MWh} \times 0.90$) to preserve battery cycle life.
+- **Degradation Wear Cost Proxy:** ₹1,250.00 per MWh of throughput discharged.
+
+#### Battery Swapping Hub Technical & Inventory Bounds (`ASSUMED`)
+- **Total Pack Inventory:** 24,000 packs per cluster (120,000 packs across 5 clusters).
+- **Usable Pack Energy:** 2.25 kWh delivered per swap; 2.50 kWh nominal rating.
+- **Swap Bay Charger Power:** 96.0 MW aggregate bay rating per cluster (2.5 kW / slot).
+- **Swap Bay Recharge Efficiency:** $\eta = 0.90$.
+- **Mandatory Ready Reserve Floor:** $\ge 1,200\text{ packs}$ ($24,000 \times 0.05$) ready packs with $\text{SOC} \ge 90\%$.
+
+#### Grid Interconnection & Power Capacity Headroom (`REGULATORY_GUARDRAIL_ASSUMED`)
+- **Substation Grid Import Limit:** 240.0 MW per cluster.
+- **Mandatory Headroom Reserve:** $\ge 12.0\text{ MW}$ ($240.0\text{ MW} \times 0.05$) capacity headroom preserved every hour.
+- **Maximum Permissible Import:** $P^{\text{discom}} + P^{\text{iex}} \le 228.0\text{ MW}$.
+- **IEX Day-Ahead Procurement Eligibility Cap:** $\le 60.0\text{ MW}$ (25% of 240 MW grid limit).
+
+#### Discrete Dynamic Tariffs & Non-Anticipativity (`REGULATORY_GUARDRAIL_ASSUMED`)
+- **Discrete Multipliers:** $m_k \in \{0.80, 0.90, 1.00, 1.10, 1.20\}$.
+- **First-Stage Decision:** Binary selection $u_{c,t,k} \in \{0, 1\}$ is scenario-independent, guaranteeing non-anticipativity across all disturbance scenarios.
+
+#### Conditional Value-at-Risk (CVaR) Tail-Risk Parameters (`ASSUMED`)
+- **Confidence Percentile $\alpha$:** 0.95 (evaluates the worst 5% loss tail).
+- **Risk Aversion Weight $\lambda_{\text{risk}}$:** 0.20 (balanced risk-return trade-off).
+- **Formulation:** Linear Rockafellar-Uryasev auxiliary variable representation ($\eta, u_s$).

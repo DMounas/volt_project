@@ -200,3 +200,68 @@ export async function fetchIncentivesSummary(): Promise<IncentivesSummaryRespons
   if (!res.ok) throw new Error(`Failed to fetch incentives summary: ${res.statusText}`);
   return res.json();
 }
+
+
+// ==========================================
+// Phase 5: MILP Optimization API Endpoints
+// ==========================================
+import type {
+  OptimizationCompareResponse,
+  OptimizationDecisionsResponse,
+  OptimizationMode,
+  OptimizationRunResponse,
+  OptimizationScenariosCatalogResponse,
+  OptimizationSummaryResponse,
+} from './types';
+
+export async function fetchOptimizationScenarios(): Promise<OptimizationScenariosCatalogResponse> {
+  const res = await fetch(`${API_BASE}/optimization/scenarios`);
+  if (!res.ok) throw new Error(`Failed to fetch optimization scenarios: ${res.statusText}`);
+  return res.json();
+}
+
+export async function runOptimizationEngine(payload: {
+  mode: OptimizationMode;
+  clusters?: string[];
+  time_limit_seconds?: number;
+  mip_gap?: number;
+  seed?: number;
+}): Promise<OptimizationRunResponse> {
+  const res = await fetch(`${API_BASE}/optimization/run`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({}));
+    throw new Error(errorData.detail || `Optimization run failed: ${res.statusText}`);
+  }
+  return res.json();
+}
+
+export async function fetchLatestOptimization(): Promise<OptimizationRunResponse> {
+  const res = await fetch(`${API_BASE}/optimization/latest`);
+  if (!res.ok) throw new Error(`Failed to fetch latest optimization: ${res.statusText}`);
+  return res.json();
+}
+
+export async function fetchOptimizationSummary(): Promise<OptimizationSummaryResponse> {
+  const res = await fetch(`${API_BASE}/optimization/summary`);
+  if (!res.ok) throw new Error(`Failed to fetch optimization summary: ${res.statusText}`);
+  return res.json();
+}
+
+export async function fetchOptimizationDecisions(
+  clusterId: string = 'delhi_ncr'
+): Promise<OptimizationDecisionsResponse> {
+  const params = new URLSearchParams({ cluster_id: clusterId });
+  const res = await fetch(`${API_BASE}/optimization/decisions?${params.toString()}`);
+  if (!res.ok) throw new Error(`Failed to fetch optimization decisions: ${res.statusText}`);
+  return res.json();
+}
+
+export async function fetchOptimizationComparison(): Promise<OptimizationCompareResponse> {
+  const res = await fetch(`${API_BASE}/optimization/compare`);
+  if (!res.ok) throw new Error(`Failed to fetch optimization comparison: ${res.statusText}`);
+  return res.json();
+}

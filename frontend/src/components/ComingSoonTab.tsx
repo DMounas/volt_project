@@ -75,7 +75,7 @@ const TAB_INFO: Record<Exclude<TabKey, 'overview' | 'flexibility'>, {
 };
 
 export const ComingSoonTab: React.FC<Props> = ({ tab }) => {
-  if (tab === 'overview' || tab === 'flexibility') return null;
+  if (tab === 'overview' || tab === 'flexibility' || tab === 'forecasts' || tab === 'optimization') return null;
 
   const info = (TAB_INFO as Record<string, any>)[tab];
   if (!info) return null;

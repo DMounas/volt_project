@@ -20,6 +20,7 @@ from backend.app.api.routes import (
     health_router,
     iex_router,
     incentive_router,
+    optimization_router,
     scenarios_router,
     tariff_router,
 )
@@ -70,6 +71,7 @@ app.include_router(customer_router, prefix=api_v1_prefix)
 app.include_router(flexibility_router, prefix=api_v1_prefix)
 app.include_router(tariff_router, prefix=api_v1_prefix)
 app.include_router(incentive_router, prefix=api_v1_prefix)
+app.include_router(optimization_router, prefix=api_v1_prefix)
 
 
 @app.get("/", tags=["Root"])

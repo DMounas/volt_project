@@ -187,6 +187,11 @@ class SyntheticRequestDisaggregator:
                         "error_pct": round(fc_error_pct, 4),
                         "reconciled": bool(fc_error_pct <= self.tolerance_pct),
                         "request_count": fc_req_count,
+                        "target_packs": 0,
+                        "total_packs": 0,
+                        "pack_reconciled": True,
+                        "quantization_residual_kwh": 0.0,
+                        "quantization_residual_mwh": 0.0,
                     }
                 )
 
@@ -209,12 +214,14 @@ class SyntheticRequestDisaggregator:
                 # Adjust sum to exactly match target_total_packs
                 current_sum = int(raw_packs.sum())
                 diff_packs = target_total_packs - current_sum
-                
+
                 if diff_packs != 0:
                     indices = rng.permutation(swap_req_count)
                     step = 1 if diff_packs > 0 else -1
                     idx_ptr = 0
-                    while diff_packs != 0 and idx_ptr < len(indices):
+                    max_passes = 10
+                    pass_cnt = 0
+                    while diff_packs != 0 and pass_cnt < max_passes:
                         idx = indices[idx_ptr]
                         if step > 0 and raw_packs[idx] < 3:
                             raw_packs[idx] += 1
@@ -222,7 +229,10 @@ class SyntheticRequestDisaggregator:
                         elif step < 0 and raw_packs[idx] > 1:
                             raw_packs[idx] -= 1
                             diff_packs += 1
-                        idx_ptr = (idx_ptr + 1) % len(indices)
+                        idx_ptr += 1
+                        if idx_ptr >= len(indices):
+                            idx_ptr = 0
+                            pass_cnt += 1
 
                 row_segment_indices = rng.choice(len(segments), size=swap_req_count, p=segment_probs)
                 arr_minutes = rng.integers(0, 60, size=swap_req_count)
@@ -266,7 +276,11 @@ class SyntheticRequestDisaggregator:
 
                 # Swap reconciliation entry
                 swap_reconciled_mwh = round((hour_swap_packs * self.pack_capacity_kwh) / 1000.0, 6)
-                swap_error_pct = abs(swap_reconciled_mwh - swap_mwh) / max(0.001, swap_mwh) * 100.0
+                quant_res_kwh = round((hour_swap_packs * self.pack_capacity_kwh) - (swap_mwh * 1000.0), 4)
+                quant_res_mwh = round(swap_reconciled_mwh - swap_mwh, 6)
+                swap_error_pct = abs(quant_res_mwh) / max(0.001, swap_mwh) * 100.0
+                pack_reconciled = bool(hour_swap_packs == target_total_packs)
+
                 reconciliations.append(
                     {
                         "timestamp": ts_str,
@@ -275,9 +289,13 @@ class SyntheticRequestDisaggregator:
                         "source_demand_mwh": swap_mwh,
                         "disaggregated_mwh": swap_reconciled_mwh,
                         "error_pct": round(swap_error_pct, 4),
-                        "reconciled": bool(swap_error_pct <= 5.0),  # Discrete pack granularity tolerance
+                        "reconciled": bool(pack_reconciled and abs(quant_res_kwh) <= (self.pack_capacity_kwh / 2.0 + 1e-3)),
                         "request_count": swap_req_count,
+                        "target_packs": target_total_packs,
                         "total_packs": hour_swap_packs,
+                        "pack_reconciled": pack_reconciled,
+                        "quantization_residual_kwh": quant_res_kwh,
+                        "quantization_residual_mwh": quant_res_mwh,
                     }
                 )
 

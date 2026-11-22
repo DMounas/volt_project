@@ -71,6 +71,42 @@ def test_swap_discrete_integer_packs(sample_hourly_data):
     assert len(swap_recon) == 2
     for _, row in swap_recon.iterrows():
         assert row["reconciled"] is True
+        assert row["pack_reconciled"] is True
+        assert row["total_packs"] == row["target_packs"]
+        # Quantization residual bounded by half a pack (1.25 kWh at 2.5 kWh pack)
+        assert abs(row["quantization_residual_kwh"]) <= 1.25
+
+
+def test_swap_integer_pack_ledger_accounting_contract(sample_hourly_data):
+    """Phase 5 Audit Gate: prove exact pack ledger integer equality and explicit quantization residual."""
+    disaggregator = SyntheticRequestDisaggregator(seed=42, pack_capacity_kwh=2.25)
+    requests, recon_df = disaggregator.disaggregate_hourly_demand(
+        sample_hourly_data, demo_mode=False
+    )
+    swap_recon = recon_df[recon_df["modality"] == "BATTERY_SWAP"]
+
+    for _, row in swap_recon.iterrows():
+        # 1. Exact integer pack ledger: no pack discrepancy allowed
+        assert row["pack_reconciled"] is True
+        assert row["total_packs"] == row["target_packs"]
+        
+        # 2. Reconcile with actual requests sum
+        hour_reqs = [
+            r for r in requests
+            if r.request_type == ServiceType.BATTERY_SWAP
+            and r.cluster_id == row["cluster_id"]
+            and r.arrival_ts.isoformat().startswith(row["timestamp"][:13])
+        ]
+        sum_packs = sum(r.requested_pack_count for r in hour_reqs)
+        assert sum_packs == row["total_packs"]
+
+        # 3. Explicit quantization residual reported in kWh and MWh
+        expected_residual_kwh = (row["total_packs"] * 2.25) - (row["source_demand_mwh"] * 1000.0)
+        assert abs(row["quantization_residual_kwh"] - expected_residual_kwh) < 1e-3
+        assert abs(row["quantization_residual_mwh"] - (row["disaggregated_mwh"] - row["source_demand_mwh"])) < 1e-5
+        
+        # 4. Quantization residual strictly <= half a pack (1.125 kWh)
+        assert abs(row["quantization_residual_kwh"]) <= 1.125 + 1e-4
 
 
 def test_disaggregation_determinism(sample_hourly_data):

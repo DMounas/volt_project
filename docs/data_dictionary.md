@@ -315,3 +315,59 @@ Separate financial incentive offer evaluated against operational wholesale procu
 | `net_expected_value_inr` | `NUMERIC(8,2)` | INR | ASSUMED_POLICY | Operational benefit minus incentive cost |
 | `evaluable` | `BOOLEAN` | — | ASSUMED_POLICY | False if required cost inputs missing (`NOT_EVALUABLE`) |
 | `status` | `VARCHAR(32)` | — | ASSUMED_POLICY | `RECOMMENDED`, `NOT_EVALUABLE`, `INSUFFICIENT_BENEFIT` |
+
+
+---
+
+## 9. Phase 5 Optimization Entities
+
+### 9.1 `hourly_cluster_decision`
+Granular physical dispatch variables and state trajectories for one cluster and one hour.
+
+| Field | Type | Unit | Provenance | Description |
+|---|---|---|---|---|
+| `cluster_id` | `VARCHAR(32)` | — | OBSERVED | Metro cluster identifier |
+| `hour` | `INTEGER` | 0..23 | — | Hour index within the 24-hour horizon |
+| `discom_mw` | `NUMERIC(8,3)` | MW | SYNTHETIC | Optimal procurement from regional DISCOM |
+| `iex_mw` | `NUMERIC(8,3)` | MW | SYNTHETIC | Optimal purchase from IEX Day-Ahead Market |
+| `renewable_used_mwh` | `NUMERIC(8,3)` | MWh | SYNTHETIC | On-site clean solar/wind generation utilized |
+| `renewable_curtailed_mwh` | `NUMERIC(8,3)` | MWh | SYNTHETIC | Clean solar/wind curtailed |
+| `bess_charge_mw` | `NUMERIC(8,3)` | MW | SYNTHETIC | Stationary BESS AC-to-DC charging power |
+| `bess_discharge_mw` | `NUMERIC(8,3)` | MW | SYNTHETIC | Stationary BESS DC-to-AC discharging power |
+| `bess_soc_mwh` | `NUMERIC(8,3)` | MWh | SYNTHETIC | Stationary BESS state of charge at end of hour |
+| `bess_reserve_compliant` | `BOOLEAN` | — | SYNTHETIC | True if SOC $\ge 3.0\text{ MWh}$ mandatory reserve |
+| `swap_packs_served` | `INTEGER` | count | SYNTHETIC | Swaps delivered to commercial customers |
+| `swap_packs_charging` | `INTEGER` | count | SYNTHETIC | Packs undergoing charging in bay infrastructure |
+| `swap_packs_ready` | `INTEGER` | count | SYNTHETIC | Packs ready with $\text{SOC} \ge 90\%$ |
+| `swap_packs_depleted` | `INTEGER` | count | SYNTHETIC | Depleted packs queued for recharge |
+| `swap_charge_power_mw` | `NUMERIC(8,3)` | MW | SYNTHETIC | Total electrical power consumed by swap charging bays |
+| `swap_reserve_compliant`| `BOOLEAN` | — | SYNTHETIC | True if ready packs $\ge 1,200$ mandatory reserve |
+| `fc_demand_requested_mwh`| `NUMERIC(8,3)`| MWh | SYNTHETIC | Aggregate fast charging energy requested |
+| `fc_demand_served_mwh` | `NUMERIC(8,3)` | MWh | SYNTHETIC | Fast charging energy delivered |
+| `fc_demand_shifted_mwh`| `NUMERIC(8,3)` | MWh | SYNTHETIC | Voluntary flexible energy deferred to/from this hour |
+| `selected_tariff_tier` | `VARCHAR(16)` | — | REGULATORY | Selected discrete dynamic tariff tier ($0.80x$ to $1.20x$) |
+| `tariff_inr_per_kwh` | `NUMERIC(8,2)` | INR/kWh | REGULATORY | Effective customer retail tariff |
+| `tariff_revenue_inr` | `NUMERIC(12,2)`| INR | SYNTHETIC | Retail energy sales revenue |
+| `incentive_spend_inr` | `NUMERIC(12,2)`| INR | SYNTHETIC | Customer flexibility incentive expenditures |
+| `losses_mwh` | `NUMERIC(8,3)` | MWh | SYNTHETIC | Physical system energy losses |
+| `power_headroom_mw` | `NUMERIC(8,3)` | MW | SYNTHETIC | Preserved substation import headroom |
+| `power_headroom_compliant`| `BOOLEAN` | — | SYNTHETIC | True if headroom $\ge 12.0\text{ MW}$ mandatory reserve |
+| `binding_constraints` | `TEXT[]` | — | SYNTHETIC | List of active binding physical/regulatory constraints |
+
+### 9.2 `optimization_kpis`
+Consolidated 24-hour performance indicators across all 5 metro clusters.
+
+| Field | Type | Unit | Provenance | Description |
+|---|---|---|---|---|
+| `service_reliability_pct` | `NUMERIC(6,2)` | % | SYNTHETIC | Total energy delivered / total energy requested |
+| `energy_loss_pct` | `NUMERIC(6,2)` | % | SYNTHETIC | Total system losses / total throughput |
+| `renewable_share_pct` | `NUMERIC(6,2)` | % | SYNTHETIC | Clean renewable utilized / total procurement |
+| `power_capacity_headroom_mw` | `NUMERIC(8,2)` | MW | SYNTHETIC | Minimum power headroom preserved |
+| `deadline_violations_count` | `INTEGER` | count | SYNTHETIC | Delayed priority sessions (invariant: 0) |
+| `total_procurement_cost_inr`| `NUMERIC(14,2)`| INR | SYNTHETIC | Total DISCOM + IEX electricity procurement expense |
+| `total_retail_revenue_inr` | `NUMERIC(14,2)`| INR | SYNTHETIC | Total customer energy tariff billing revenue |
+| `total_flexibility_incentive_inr`| `NUMERIC(14,2)`| INR | SYNTHETIC | Total flexibility incentive spend |
+| `total_degradation_cost_inr`| `NUMERIC(14,2)`| INR | SYNTHETIC | Battery wear replacement proxy cost |
+| `net_operating_cost_inr` | `NUMERIC(14,2)`| INR | SYNTHETIC | Net cost = Procurement + Deg + Incentives - Revenue |
+| `cvar_tail_risk_cost_inr` | `NUMERIC(14,2)`| INR | SYNTHETIC | 95% tail-risk cost under adverse market spikes |
+| `ebitda_operating_margin_pct`| `NUMERIC(6,2)` | % | SYNTHETIC | Site operating margin proxy |

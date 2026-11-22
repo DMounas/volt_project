@@ -482,3 +482,174 @@ export interface ScenarioEvaluationResult {
   sample_offers: IncentiveOffer[];
   provenance: string;
 }
+
+
+// =====================================================================
+// Phase 5: Optimization Types
+// =====================================================================
+
+export type OptimizationMode = 'BAU_BASELINE' | 'DETERMINISTIC_P50' | 'RISK_AWARE_CVAR';
+
+export type SolverStatus =
+  | 'OPTIMAL'
+  | 'FEASIBLE_GAP'
+  | 'INFEASIBLE'
+  | 'TIME_LIMIT'
+  | 'SOLVER_UNAVAILABLE'
+  | 'ERROR'
+  | 'FALLBACK_HEURISTIC';
+
+export type DynamicTariffTier = '0.80x' | '0.90x' | '1.00x' | '1.10x' | '1.20x';
+
+export interface HourlyClusterDecision {
+  cluster_id: string;
+  hour: number;
+  discom_mw: number;
+  iex_mw: number;
+  renewable_used_mwh: number;
+  renewable_curtailed_mwh: number;
+  bess_charge_mw: number;
+  bess_discharge_mw: number;
+  bess_soc_mwh: number;
+  bess_reserve_compliant: boolean;
+  swap_packs_served: number;
+  swap_packs_charging: number;
+  swap_packs_ready: number;
+  swap_packs_depleted: number;
+  swap_charge_power_mw: number;
+  swap_reserve_compliant: boolean;
+  fc_demand_requested_mwh: number;
+  fc_demand_served_mwh: number;
+  fc_demand_shifted_mwh: number;
+  fc_unserved_slack_mwh: number;
+  selected_tariff_tier: DynamicTariffTier;
+  tariff_inr_per_kwh: number;
+  tariff_revenue_inr: number;
+  incentive_spend_inr: number;
+  losses_mwh: number;
+  power_headroom_mw: number;
+  power_headroom_compliant: boolean;
+  binding_constraints: string[];
+}
+
+export interface OptimizationKPIs {
+  service_reliability_pct: number;
+  fast_charge_fill_rate_pct: number;
+  swap_pack_fill_rate_pct: number;
+  energy_loss_pct: number;
+  renewable_share_pct: number;
+  power_capacity_headroom_mw: number;
+  power_headroom_reserve_compliant: boolean;
+  bess_emergency_reserve_compliant: boolean;
+  swap_emergency_reserve_compliant: boolean;
+  deadline_violations_count: number;
+  unserved_critical_mwh: number;
+  total_energy_requested_mwh: number;
+  total_energy_served_mwh: number;
+  total_procurement_cost_inr: number;
+  total_retail_revenue_inr: number;
+  total_flexibility_incentive_inr: number;
+  total_degradation_cost_inr: number;
+  net_operating_cost_inr: number;
+  cvar_tail_risk_cost_inr: number;
+  ebitda_operating_margin_pct?: number | null;
+  ebitda_status: string;
+}
+
+export interface SolverMetadata {
+  solver_name: string;
+  solver_version: string;
+  solver_status: SolverStatus;
+  termination_condition: string;
+  solve_time_seconds: number;
+  objective_value: number;
+  best_bound?: number | null;
+  mip_gap?: number | null;
+  iterations?: number | null;
+  variables_count: number;
+  constraints_count: number;
+  is_fallback: boolean;
+  infeasibility_reasons: string[];
+}
+
+export interface OptimizationRunResponse {
+  run_id: string;
+  mode: OptimizationMode;
+  timestamp: string;
+  clusters: string[];
+  scenarios_evaluated: string[];
+  solver_metadata: SolverMetadata;
+  kpis: OptimizationKPIs;
+  provenance: Provenance;
+  disclaimer: string;
+}
+
+export interface OptimizationSummaryResponse {
+  run_id: string;
+  mode: OptimizationMode;
+  solver_status: SolverStatus;
+  solve_time_seconds: number;
+  mip_gap?: number | null;
+  objective_value: number;
+  kpis: OptimizationKPIs;
+  cluster_summaries: Record<
+    string,
+    {
+      service_reliability_pct: number;
+      total_energy_served_mwh: number;
+      net_operating_cost_inr: number;
+      renewable_utilization_pct: number;
+      energy_loss_pct: number;
+    }
+  >;
+  provenance: Provenance;
+}
+
+export interface OptimizationDecisionsResponse {
+  cluster_id: string;
+  mode: OptimizationMode;
+  decisions: HourlyClusterDecision[];
+  provenance: Provenance;
+}
+
+export interface PolicyComparisonData {
+  mode: string;
+  solver_status: string;
+  solve_time_seconds?: number;
+  mip_gap?: number | null;
+  service_reliability_pct: number;
+  energy_loss_pct: number;
+  renewable_share_pct: number;
+  net_operating_cost_inr: number;
+  procurement_cost_inr: number;
+  retail_revenue_inr: number;
+  cvar_tail_risk_inr: number;
+  min_power_headroom_mw: number;
+  cost_saving_inr?: number;
+  cost_saving_pct?: number;
+  reliability_uplift_pct?: number;
+  tail_risk_hedge_inr?: number;
+}
+
+export interface OptimizationCompareResponse {
+  comparison_summary: {
+    bau_baseline: PolicyComparisonData;
+    deterministic_p50: PolicyComparisonData;
+    risk_aware_cvar: PolicyComparisonData;
+  };
+  invariants_verified: Record<string, boolean>;
+  provenance: Provenance;
+}
+
+export interface ScenarioCatalogItem {
+  scenario_id: string;
+  probability: number;
+  description: string;
+  provenance: Provenance;
+}
+
+export interface OptimizationScenariosCatalogResponse {
+  scenarios: ScenarioCatalogItem[];
+  alpha_confidence: number;
+  provenance: Provenance;
+}

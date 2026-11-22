@@ -931,3 +931,151 @@ Content-Type: application/json
 }
 ```
 ```
+
+
+---
+
+## 11. Phase 5 Optimization Endpoints
+
+### 11.1 `POST /api/v1/optimization/run`
+Executes multi-city Pyomo MILP optimization across selected policy mode and horizon.
+
+#### Request
+```http
+POST /api/v1/optimization/run HTTP/1.1
+Host: localhost:8000
+Content-Type: application/json
+
+{
+  "mode": "DETERMINISTIC_P50",
+  "clusters": ["delhi_ncr", "mumbai_mmr", "bengaluru", "hyderabad", "chennai"],
+  "time_limit_seconds": 60.0,
+  "mip_gap": 0.01,
+  "seed": 42
+}
+```
+
+#### Response (`200 OK`)
+```json
+{
+  "run_id": "OPT-DET-0042",
+  "mode": "DETERMINISTIC_P50",
+  "timestamp": "2025-06-15T00:00:00+05:30",
+  "clusters": ["delhi_ncr", "mumbai_mmr", "bengaluru", "hyderabad", "chennai"],
+  "scenarios_evaluated": ["NORMAL"],
+  "solver_metadata": {
+    "solver_name": "appsi_highs",
+    "solver_version": "1.16.0",
+    "solver_status": "OPTIMAL",
+    "termination_condition": "optimal",
+    "solve_time_seconds": 7.3621,
+    "objective_value": -26704814.25,
+    "best_bound": -26704814.25,
+    "mip_gap": 0.0,
+    "variables_count": 112870,
+    "constraints_count": 11360,
+    "is_fallback": false,
+    "infeasibility_reasons": []
+  },
+  "kpis": {
+    "service_reliability_pct": 100.0,
+    "fast_charge_fill_rate_pct": 100.0,
+    "swap_pack_fill_rate_pct": 100.0,
+    "energy_loss_pct": 1.32,
+    "renewable_share_pct": 56.0,
+    "power_capacity_headroom_mw": 182.4,
+    "power_headroom_reserve_compliant": true,
+    "bess_emergency_reserve_compliant": true,
+    "swap_emergency_reserve_compliant": true,
+    "deadline_violations_count": 0,
+    "unserved_critical_mwh": 0.0,
+    "total_energy_requested_mwh": 3140.39,
+    "total_energy_served_mwh": 3140.39,
+    "total_procurement_cost_inr": 8416912.0,
+    "total_retail_revenue_inr": 35121726.25,
+    "total_flexibility_incentive_inr": 0.0,
+    "total_degradation_cost_inr": 465225.0,
+    "net_operating_cost_inr": -26704814.25,
+    "cvar_tail_risk_cost_inr": 24890215.0,
+    "ebitda_operating_margin_pct": 76.03,
+    "ebitda_status": "EBITDA_PROXY"
+  },
+  "provenance": "SYNTHETIC",
+  "disclaimer": "Decision-support simulation model output under rolling MPC assumptions. Not a live grid-control dispatch or binding IEX market bidding gateway."
+}
+```
+
+---
+
+### 11.2 `GET /api/v1/optimization/compare`
+Returns apples-to-apples performance comparisons across BAU, Deterministic P50, and Risk-Aware CVaR policies.
+
+#### Request
+```http
+GET /api/v1/optimization/compare HTTP/1.1
+Host: localhost:8000
+Accept: application/json
+```
+
+#### Response (`200 OK`)
+```json
+{
+  "comparison_summary": {
+    "bau_baseline": {
+      "mode": "BAU_BASELINE",
+      "solver_status": "RULE_BASED",
+      "service_reliability_pct": 78.4,
+      "energy_loss_pct": 10.18,
+      "renewable_share_pct": 38.2,
+      "net_operating_cost_inr": -19499129.0,
+      "procurement_cost_inr": 15164280.0,
+      "retail_revenue_inr": 35123409.0,
+      "cvar_tail_risk_inr": 28450120.0,
+      "min_power_headroom_mw": 12.0
+    },
+    "deterministic_p50": {
+      "mode": "DETERMINISTIC_P50",
+      "solver_status": "OPTIMAL",
+      "solve_time_seconds": 7.3621,
+      "mip_gap": 0.0,
+      "service_reliability_pct": 100.0,
+      "energy_loss_pct": 1.32,
+      "renewable_share_pct": 56.0,
+      "net_operating_cost_inr": -26704814.25,
+      "procurement_cost_inr": 8416912.0,
+      "retail_revenue_inr": 35121726.25,
+      "cvar_tail_risk_inr": 24890215.0,
+      "min_power_headroom_mw": 182.4,
+      "cost_saving_inr": 7205685.25,
+      "cost_saving_pct": 36.95,
+      "reliability_uplift_pct": 21.6
+    },
+    "risk_aware_cvar": {
+      "mode": "RISK_AWARE_CVAR",
+      "solver_status": "OPTIMAL",
+      "solve_time_seconds": 31.5272,
+      "mip_gap": 0.0,
+      "service_reliability_pct": 100.0,
+      "energy_loss_pct": 1.32,
+      "renewable_share_pct": 56.0,
+      "net_operating_cost_inr": -26717911.45,
+      "procurement_cost_inr": 8403815.0,
+      "retail_revenue_inr": 35121726.25,
+      "cvar_tail_risk_inr": 22915905.0,
+      "min_power_headroom_mw": 182.4,
+      "cost_saving_inr": 7218782.45,
+      "cost_saving_pct": 37.02,
+      "reliability_uplift_pct": 21.6,
+      "tail_risk_hedge_inr": 1974310.0
+    }
+  },
+  "invariants_verified": {
+    "all_modes_identical_demand": true,
+    "bess_reserve_maintained_all": true,
+    "swap_reserve_maintained_all": true,
+    "power_headroom_maintained_all": true,
+    "zero_deadline_violations_all": true
+  },
+  "provenance": "SYNTHETIC"
+}
+```

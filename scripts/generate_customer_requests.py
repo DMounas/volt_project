@@ -93,12 +93,14 @@ def main():
     swap_recon = recon_df[recon_df["modality"] == "BATTERY_SWAP"]
 
     fc_pass = (fc_recon["reconciled"].sum() / len(fc_recon)) * 100.0 if len(fc_recon) > 0 else 100.0
+    swap_pack_pass = (swap_recon["pack_reconciled"].sum() / len(swap_recon)) * 100.0 if len(swap_recon) > 0 else 100.0
     swap_pass = (swap_recon["reconciled"].sum() / len(swap_recon)) * 100.0 if len(swap_recon) > 0 else 100.0
 
     print(f"Fast-Charging MWh Pass Rate (<=0.05% error): {fc_pass:.2f}%")
-    print(f"Battery Swapping MWh Pass Rate (<=0.05% error): {swap_pass:.2f}%")
+    print(f"Battery Swapping Integer Pack Ledger Pass Rate (exact 0-pack diff): {swap_pack_pass:.2f}%")
+    print(f"Battery Swapping Overall Reconciled Rate (ledger exact + residual <=1.125 kWh): {swap_pass:.2f}%")
     print(f"Max Fast-Charge Disaggregation Error: {fc_recon['error_pct'].max():.4f}%")
-    print(f"Max Swap Disaggregation Error: {swap_recon['error_pct'].max():.4f}%")
+    print(f"Max Swap Quantization Energy Residual: {abs(swap_recon['quantization_residual_kwh']).max():.4f} kWh")
     print("========================================================\n")
 
     print(f"Saved customer requests: {req_file} (SHA-256: {req_hash})")
@@ -114,7 +116,7 @@ def main():
             manifest["files"]["customer_requests_disaggregated.csv.gz"] = {
                 "path": "customer_requests_disaggregated.csv.gz",
                 "row_count": len(requests_df),
-                "size_bytes": out_path.stat().st_size,
+                "size_bytes": req_file.stat().st_size,
                 "sha256": req_hash,
                 "description": "Disaggregated individual fast-charging and battery swap requests with flexibility envelopes",
                 "records": len(requests_df),

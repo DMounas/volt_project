@@ -62,11 +62,11 @@
     },
     "customer_requests_disaggregated.csv.gz": {
       "path": "customer_requests_disaggregated.csv.gz",
-      "row_count": 59087,
-      "size_bytes": 922828,
-      "sha256": "cefccf41fe2d6c93ace779e03690fbeb6da30347d88c9f3fc7687fa2385342e9",
+      "row_count": 171692,
+      "size_bytes": 2680358,
+      "sha256": "460750233ea0c1e2bf5fa255b178128c1024287af06e19580b437da6c6542c90",
       "description": "Disaggregated individual fast-charging and battery swap requests with flexibility envelopes",
-      "records": 59087,
+      "records": 171692,
       "provenance": "SYNTHETIC",
       "reconciliation_passed": true
     }

@@ -29,6 +29,8 @@ dependencies = [
     "sqlalchemy>=2.0.28",
     "psycopg2-binary>=2.9.9",
     "python-dotenv>=1.0.1",
+    "pyomo>=6.11.0",
+    "highspy>=1.16.0",
 ]
 
 [project.optional-dependencies]
