@@ -1,0 +1,39 @@
+{
+  "full_system_mpc": {
+    "description": "Full closed-loop MPC with CVaR tail-risk hedge and customer flexibility",
+    "reliability_pct": 96.82,
+    "loss_pct": 21.61,
+    "procurement_cost_inr": 2164410.15,
+    "flexibility_incentives_inr": 0.0,
+    "net_contribution_inr": 2243867.22
+  },
+  "no_customer_flexibility": {
+    "description": "All EV charging windows rigid (zero opt-in; no demand shifting)",
+    "reliability_pct": 79.76,
+    "loss_pct": 24.21,
+    "procurement_cost_inr": 3451938.79,
+    "cost_penalty_vs_full_pct": 59.49
+  },
+  "open_loop_milp": {
+    "description": "Static 24-hour day-ahead optimization plan without receding-horizon re-solve",
+    "reliability_pct": 97.12,
+    "loss_pct": 21.33,
+    "procurement_cost_inr": 2305102.19,
+    "cost_penalty_vs_full_pct": 6.5
+  },
+  "fallback_heuristic": {
+    "description": "Rule-based safety scheduler preserving reserves without mathematical optimization",
+    "reliability_pct": 100.0,
+    "loss_pct": 21.51,
+    "procurement_cost_inr": 4156069.7,
+    "cost_penalty_vs_full_pct": 92.02
+  },
+  "oracle_upper_bound": {
+    "description": "Theoretical non-causal perfect-foresight upper bound (strictly unachievable in real operation)",
+    "reliability_pct": 100.0,
+    "procurement_cost_inr": 2038874.36,
+    "theoretical_oracle_advantage_pct": 5.8,
+    "is_achievable_policy": false,
+    "label": "THEORETICAL_ORACLE_BOUND_ONLY"
+  }
+}

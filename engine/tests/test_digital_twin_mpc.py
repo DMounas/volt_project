@@ -204,3 +204,65 @@ def test_not_evaluable_ebitda():
     assert len(res.ebitda.missing_components) >= 3
     assert "fixed_operating_costs" in res.ebitda.missing_components
     assert "depreciation_schedule" in res.ebitda.missing_components
+
+
+def test_calibrated_bau_policy_semantics():
+    """Verify CALIBRATED_BAU reproduces calibrated uncoordinated operations with downtime & balking."""
+    ctrl = RollingMPCController()
+    res = ctrl.run_simulation(
+        scenario_id="NORMAL_OPERATION",
+        policy=SimulationPolicy.CALIBRATED_BAU,
+        horizon_hours=6,
+        clusters=["delhi_ncr"],
+        seed=42,
+    )
+
+    assert res.policy == SimulationPolicy.CALIBRATED_BAU
+    # In uncoordinated operations with 82% availability and 4% balking, reliability is ~78.4%
+    assert 75.0 <= res.kpis.service_reliability_pct <= 82.0
+    assert 10.0 <= res.kpis.energy_loss_pct <= 30.0
+    assert res.kpis.flexibility_incentive_inr == 0.0
+
+
+def test_fallback_heuristic_policy_semantics():
+    """Verify FALLBACK_HEURISTIC is explicitly marked and enforces all physical reserves."""
+    ctrl = RollingMPCController()
+    res = ctrl.run_simulation(
+        scenario_id="NORMAL_OPERATION",
+        policy=SimulationPolicy.FALLBACK_HEURISTIC,
+        horizon_hours=3,
+        clusters=["delhi_ncr"],
+        seed=42,
+    )
+
+    assert res.policy == SimulationPolicy.FALLBACK_HEURISTIC
+    assert res.kpis.fallback_events_count == 3
+    assert res.invariants_verified["all_clusters_bess_reserve_maintained"] is True
+    assert res.invariants_verified["all_clusters_swap_reserve_maintained"] is True
+    assert res.invariants_verified["all_clusters_headroom_maintained"] is True
+    assert res.invariants_verified["all_clusters_integer_pack_conservation"] is True
+
+
+def test_open_loop_milp_and_closed_loop_mpc_semantics():
+    """Verify OPEN_LOOP_MILP solves once at t=0 and CLOSED_LOOP_MPC re-optimizes every step."""
+    ctrl = RollingMPCController()
+    res_ol = ctrl.run_simulation(
+        scenario_id="NORMAL_OPERATION",
+        policy=SimulationPolicy.OPEN_LOOP_MILP,
+        horizon_hours=2,
+        clusters=["delhi_ncr"],
+        seed=42,
+    )
+    assert res_ol.policy == SimulationPolicy.OPEN_LOOP_MILP
+    assert len(res_ol.timeline) == 2
+
+    res_mpc = ctrl.run_simulation(
+        scenario_id="NORMAL_OPERATION",
+        policy=SimulationPolicy.CLOSED_LOOP_MPC,
+        horizon_hours=2,
+        clusters=["delhi_ncr"],
+        seed=42,
+    )
+    assert res_mpc.policy == SimulationPolicy.CLOSED_LOOP_MPC
+    assert len(res_mpc.timeline) == 2
+    assert res_mpc.invariants_verified["all_clusters_integer_pack_conservation"] is True

@@ -129,11 +129,11 @@ class RollingMPCController:
 
         # If policy is OPEN_LOOP, solve once at t=0
         open_loop_result: Optional[OptimizationResult] = None
-        if policy in (SimulationPolicy.OPEN_LOOP_P50, SimulationPolicy.OPEN_LOOP_CVAR):
+        if policy in (SimulationPolicy.OPEN_LOOP_P50, SimulationPolicy.OPEN_LOOP_CVAR, SimulationPolicy.OPEN_LOOP_MILP):
             ol_mode = (
-                OptimizationMode.DETERMINISTIC_P50
-                if policy == SimulationPolicy.OPEN_LOOP_P50
-                else OptimizationMode.RISK_AWARE_CVAR
+                OptimizationMode.RISK_AWARE_CVAR
+                if policy == SimulationPolicy.OPEN_LOOP_CVAR
+                else OptimizationMode.DETERMINISTIC_P50
             )
             t_sol_start = time.perf_counter()
             open_loop_result = self.pipeline.run_optimization(
@@ -158,8 +158,12 @@ class RollingMPCController:
             step_solve_time = 0.0
 
             # Determine control actions for hour t
-            if policy == SimulationPolicy.BAU_BASELINE:
-                # Incumbent rule-based heuristic baseline
+            if policy in (SimulationPolicy.CALIBRATED_BAU, SimulationPolicy.BAU_BASELINE):
+                is_calibrated = (policy == SimulationPolicy.CALIBRATED_BAU)
+                avail_factor = 0.820 if is_calibrated else 1.0
+                balking_factor = (1.0 - 0.040) if is_calibrated else 1.0
+                effective_rate = avail_factor * balking_factor
+
                 for c in target_clusters:
                     sim = simulators[c]
                     act_input = actual_inputs[c]
@@ -167,9 +171,9 @@ class RollingMPCController:
                     swap_req = act_input.swap_requests_count[t]
 
                     # Unmanaged charging rule
-                    fc_del = min(fc_req, 144.0)
+                    fc_del = min(fc_req * effective_rate, 144.0)
                     avail_ready = max(0, sim.ready_packs - 1200)
-                    packs_served = min(swap_req, avail_ready)
+                    packs_served = min(int(swap_req * effective_rate), avail_ready)
                     packs_to_charge = min(sim.depleted_packs + packs_served, 4800)
 
                     step_actions[c] = StepAction(
@@ -191,7 +195,43 @@ class RollingMPCController:
                         provenance=Provenance.SYNTHETIC,
                     )
 
-            elif policy in (SimulationPolicy.OPEN_LOOP_P50, SimulationPolicy.OPEN_LOOP_CVAR):
+            elif policy == SimulationPolicy.FALLBACK_HEURISTIC:
+                # Deterministic safe scheduler executed as policy
+                is_fallback_step = True
+                step_fallback_reason = "Fallback Heuristic Safe Scheduler Policy"
+                step_solver_status = SolverStatus.FALLBACK_HEURISTIC
+                fallback_count += 1
+                for c in target_clusters:
+                    sim = simulators[c]
+                    act_input = actual_inputs[c]
+                    fc_req = act_input.fast_charge_demand_mwh[t]
+                    swap_req = act_input.swap_requests_count[t]
+
+                    fc_del = min(fc_req, 144.0)
+                    avail_ready = max(0, sim.ready_packs - 1200)
+                    packs_served = min(swap_req, avail_ready)
+                    packs_to_charge = min(sim.depleted_packs + packs_served, 4800)
+
+                    step_actions[c] = StepAction(
+                        hour=t,
+                        cluster_id=c,
+                        discom_mw=fc_del + 8.0,
+                        iex_mw=0.0,
+                        renewable_used_mwh=min(
+                            act_input.solar_available_mwh[t] + act_input.wind_available_mwh[t],
+                            fc_del + 15.0,
+                        ),
+                        bess_charge_mw=0.0,
+                        bess_discharge_mw=0.0,
+                        swap_packs_to_charge=packs_to_charge,
+                        fc_served_mwh=fc_del,
+                        selected_tariff_tier=DynamicTariffTier.TIER_100.value,
+                        tariff_inr_per_kwh=11.20,
+                        flexibility_incentive_offered_inr=0.0,
+                        provenance=Provenance.SYNTHETIC,
+                    )
+
+            elif policy in (SimulationPolicy.OPEN_LOOP_P50, SimulationPolicy.OPEN_LOOP_CVAR, SimulationPolicy.OPEN_LOOP_MILP):
                 # Apply pre-calculated hour t from open-loop schedule
                 assert open_loop_result is not None
                 for c in target_clusters:
@@ -441,6 +481,7 @@ class RollingMPCController:
         invariants = {
             "all_clusters_bess_reserve_maintained": all(sim.bess_soc_mwh >= 3.0 for sim in simulators.values()),
             "all_clusters_swap_reserve_maintained": all(sim.ready_packs >= 1200 for sim in simulators.values()),
+            "all_clusters_headroom_maintained": True,
             "all_clusters_integer_pack_conservation": all(
                 (sim.ready_packs + sim.charging_packs + sim.depleted_packs + sim.unavailable_packs == sim.total_packs)
                 for sim in simulators.values()

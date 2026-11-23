@@ -33,7 +33,14 @@ class ShockScenarioType(str, Enum):
 
 
 class SimulationPolicy(str, Enum):
-    """Control and optimization policy variants."""
+    """Control and optimization policy variants with audited comparison semantics."""
+    # Canonical audited policy semantics
+    CALIBRATED_BAU = "CALIBRATED_BAU"              # Uncoordinated operations simulator (downtime & balking)
+    FALLBACK_HEURISTIC = "FALLBACK_HEURISTIC"      # Rule-based safe scheduler when solver unavailable
+    OPEN_LOOP_MILP = "OPEN_LOOP_MILP"              # Open-loop 24-hour MILP optimization schedule
+    CLOSED_LOOP_MPC = "CLOSED_LOOP_MPC"            # Receding-horizon MPC (applies t=0, re-optimizes)
+
+    # Specific scenario / backward-compatible variants
     BAU_BASELINE = "BAU_BASELINE"
     OPEN_LOOP_P50 = "OPEN_LOOP_P50"
     OPEN_LOOP_CVAR = "OPEN_LOOP_CVAR"

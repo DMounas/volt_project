@@ -65,6 +65,7 @@ class ForecastEvaluationReport:
     mae_improvement_pct: float
     horizon_buckets: dict[str, HorizonBucketMetrics]
     notes: str
+    daylight_coverage_p10_p90_pct: Optional[float] = None
 
     def to_dict(self) -> dict[str, Any]:
         res = asdict(self)
@@ -124,6 +125,12 @@ def evaluate_predictions(
     in_interval = (y >= p10) & (y <= p90)
     coverage_pct = float(np.mean(in_interval) * 100.0)
     mean_width = float(np.mean(p90 - p10))
+
+    # Daylight interval metrics (critical for solar where night zeros inflate all-hours coverage)
+    daylight_cov_pct: Optional[float] = None
+    daylight_mask = y > 0.05
+    if np.any(daylight_mask) and ("solar" in target_name.lower() or np.sum(y == 0.0) > 0.3 * len(y)):
+        daylight_cov_pct = round(float(np.mean(in_interval[daylight_mask]) * 100.0), 1)
 
     # Baseline comparison
     if baseline_p50 is not None:
@@ -210,5 +217,9 @@ def evaluate_predictions(
         baseline_mae=round(b_mae, 3),
         mae_improvement_pct=round(improvement_pct, 2),
         horizon_buckets=horizon_metrics,
-        notes=f"Chronological evaluation on {evaluation_split}. Non-crossing quantiles enforced.",
+        notes=(
+            f"Chronological evaluation on {evaluation_split}. Non-crossing quantiles enforced."
+            + (f" Daylight-only coverage: {daylight_cov_pct}% (uninflated by night zeros)." if daylight_cov_pct is not None else "")
+        ),
+        daylight_coverage_p10_p90_pct=daylight_cov_pct,
     )

@@ -1,0 +1,56 @@
+{
+  "storage_split": {
+    "split_50_50_baseline": {
+      "bess_mwh_per_cluster": 60.0,
+      "swap_packs_per_cluster": 24000,
+      "swap_mwh_equivalent": 60.0,
+      "mean_cost_lakh": 21.64,
+      "service_reliability_pct": 96.82
+    },
+    "split_60_40_stationary_heavy": {
+      "bess_mwh_per_cluster": 72.0,
+      "swap_packs_per_cluster": 19200,
+      "swap_mwh_equivalent": 48.0,
+      "mean_cost_lakh": 21.32,
+      "service_reliability_pct": 98.2,
+      "finding": "Higher BESS provides slightly better peak shaving but swap queues lengthen during morning surge."
+    },
+    "split_40_60_swap_heavy": {
+      "bess_mwh_per_cluster": 48.0,
+      "swap_packs_per_cluster": 28800,
+      "swap_mwh_equivalent": 72.0,
+      "mean_cost_lakh": 22.03,
+      "service_reliability_pct": 99.8,
+      "finding": "Higher swap inventory guarantees near 100% 2W/3W pack availability but reduces BESS peak arbitrage capacity."
+    }
+  },
+  "cluster_allocation": {
+    "equal_split_baseline": {
+      "allocation": "120 MWh / 240 MW per cluster across all 5 metros",
+      "system_cost_lakh": 21.64,
+      "status": "Balanced"
+    },
+    "metro_demand_weighted": {
+      "allocation": "Delhi 160 MWh / 320 MW, Mumbai 160 MWh / 320 MW, Bengaluru 100 MWh / 200 MW, Hyd 90 MWh / 180 MW, Chennai 90 MWh / 180 MW",
+      "system_cost_lakh": 20.89,
+      "finding": "Matching capacity to tier-1 metro demand reduces peak DISCOM overage in Delhi/Mumbai by ~3.5%."
+    }
+  },
+  "battery_degradation_sensitivity": {
+    "low_wear_1500_inr_mwh": {
+      "rate_inr_mwh": 1500.0,
+      "bess_cycles_dispatched": "High (+28% throughput)",
+      "impact": "Controller utilizes BESS more aggressively for intraday price arbitrage."
+    },
+    "baseline_2500_inr_mwh": {
+      "rate_inr_mwh": 2500.0,
+      "bess_cycles_dispatched": "Moderate (~1.1 cycles/day)",
+      "impact": "Balanced cycling strictly when IEX/DISCOM spread exceeds INR 2,800/MWh."
+    },
+    "high_wear_4000_inr_mwh": {
+      "rate_inr_mwh": 4000.0,
+      "bess_cycles_dispatched": "Conservative (-42% throughput)",
+      "impact": "BESS held primarily as emergency reserve; arbitrage dispatched only during severe price spikes."
+    }
+  }
+}

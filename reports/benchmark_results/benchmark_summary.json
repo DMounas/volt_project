@@ -1,0 +1,189 @@
+{
+  "timestamp": "2026-11-23T18:09:10.144631+00:00",
+  "total_runs": 2,
+  "policy_summary": {
+    "CALIBRATED_BAU": {
+      "count": 1,
+      "service_reliability_pct": {
+        "mean": 79.77,
+        "std": 0.0,
+        "median": 79.77,
+        "p10": 79.77,
+        "p90": 79.77
+      },
+      "fast_charge_fill_rate_pct": {
+        "mean": 80.57,
+        "std": 0.0,
+        "median": 80.57,
+        "p10": 80.57,
+        "p90": 80.57
+      },
+      "swap_pack_fill_rate_pct": {
+        "mean": 78.97,
+        "std": 0.0,
+        "median": 78.97,
+        "p10": 78.97,
+        "p90": 78.97
+      },
+      "energy_loss_pct": {
+        "mean": 25.25,
+        "std": 0.0,
+        "median": 25.25,
+        "p10": 25.25,
+        "p90": 25.25
+      },
+      "renewable_share_pct": {
+        "mean": 53.16,
+        "std": 0.0,
+        "median": 53.16,
+        "p10": 53.16,
+        "p90": 53.16
+      },
+      "total_procurement_cost_inr": {
+        "mean": 1239820.73,
+        "std": 0.0,
+        "median": 1239820.73,
+        "p10": 1239820.73,
+        "p90": 1239820.73
+      },
+      "retail_tariff_revenue_inr": {
+        "mean": 1516990.66,
+        "std": 0.0,
+        "median": 1516990.66,
+        "p10": 1516990.66,
+        "p90": 1516990.66
+      },
+      "flexibility_incentives_inr": {
+        "mean": 0.0,
+        "std": 0.0,
+        "median": 0.0,
+        "p10": 0.0,
+        "p90": 0.0
+      },
+      "battery_degradation_expense_inr": {
+        "mean": 0.0,
+        "std": 0.0,
+        "median": 0.0,
+        "p10": 0.0,
+        "p90": 0.0
+      },
+      "gross_procurement_margin_inr": {
+        "mean": 277169.93,
+        "std": 0.0,
+        "median": 277169.93,
+        "p10": 277169.93,
+        "p90": 277169.93
+      },
+      "net_operating_contribution_inr": {
+        "mean": 277169.93,
+        "std": 0.0,
+        "median": 277169.93,
+        "p10": 277169.93,
+        "p90": 277169.93
+      },
+      "mean_solve_time_seconds": {
+        "mean": 0.0,
+        "std": 0.0,
+        "median": 0.0,
+        "p10": 0.0,
+        "p90": 0.0
+      }
+    },
+    "CLOSED_LOOP_MPC": {
+      "count": 1,
+      "service_reliability_pct": {
+        "mean": 99.63,
+        "std": 0.0,
+        "median": 99.63,
+        "p10": 99.63,
+        "p90": 99.63
+      },
+      "fast_charge_fill_rate_pct": {
+        "mean": 100.0,
+        "std": 0.0,
+        "median": 100.0,
+        "p10": 100.0,
+        "p90": 100.0
+      },
+      "swap_pack_fill_rate_pct": {
+        "mean": 98.63,
+        "std": 0.0,
+        "median": 98.63,
+        "p10": 98.63,
+        "p90": 98.63
+      },
+      "energy_loss_pct": {
+        "mean": 20.76,
+        "std": 0.0,
+        "median": 20.76,
+        "p10": 20.76,
+        "p90": 20.76
+      },
+      "renewable_share_pct": {
+        "mean": 50.0,
+        "std": 0.0,
+        "median": 50.0,
+        "p10": 50.0,
+        "p90": 50.0
+      },
+      "total_procurement_cost_inr": {
+        "mean": 825682.58,
+        "std": 0.0,
+        "median": 825682.58,
+        "p10": 825682.58,
+        "p90": 825682.58
+      },
+      "retail_tariff_revenue_inr": {
+        "mean": 1532281.44,
+        "std": 0.0,
+        "median": 1532281.44,
+        "p10": 1532281.44,
+        "p90": 1532281.44
+      },
+      "flexibility_incentives_inr": {
+        "mean": 0.0,
+        "std": 0.0,
+        "median": 0.0,
+        "p10": 0.0,
+        "p90": 0.0
+      },
+      "battery_degradation_expense_inr": {
+        "mean": 0.0,
+        "std": 0.0,
+        "median": 0.0,
+        "p10": 0.0,
+        "p90": 0.0
+      },
+      "gross_procurement_margin_inr": {
+        "mean": 706598.86,
+        "std": 0.0,
+        "median": 706598.86,
+        "p10": 706598.86,
+        "p90": 706598.86
+      },
+      "net_operating_contribution_inr": {
+        "mean": 706598.86,
+        "std": 0.0,
+        "median": 706598.86,
+        "p10": 706598.86,
+        "p90": 706598.86
+      },
+      "mean_solve_time_seconds": {
+        "mean": 42.49,
+        "std": 0.0,
+        "median": 42.49,
+        "p10": 42.49,
+        "p90": 42.49
+      }
+    }
+  },
+  "paired_deltas": {
+    "mpc_vs_calibrated_bau": {
+      "mean_cost_saving_inr": 414138.15,
+      "mean_cost_saving_pct": 33.4,
+      "mean_reliability_uplift_pct": 19.86,
+      "mean_loss_reduction_pct": 4.49,
+      "n_pairs": 1
+    }
+  }
+}

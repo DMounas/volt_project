@@ -358,3 +358,34 @@ export async function fetchOptimizationComparison(): Promise<OptimizationCompare
   if (!res.ok) throw new Error(`Failed to fetch optimization comparison: ${res.statusText}`);
   return res.json();
 }
+
+// ==========================================
+// Phase 7: Benchmark & Metric Registry API
+// ==========================================
+import type {
+  AblationsResponse,
+  BenchmarkSummaryResponse,
+  MetricRegistryResponse,
+} from './types';
+
+export async function fetchMetricsRegistry(): Promise<MetricRegistryResponse> {
+  const res = await fetch(`${API_BASE}/benchmarks/metrics/registry`);
+  if (!res.ok) throw new Error(`Failed to fetch metric registry: ${res.statusText}`);
+  return res.json();
+}
+
+export async function fetchBenchmarkSummary(): Promise<BenchmarkSummaryResponse> {
+  const res = await fetch(`${API_BASE}/benchmarks/summary`);
+  if (!res.ok) throw new Error(`Failed to fetch benchmark summary: ${res.statusText}`);
+  return res.json();
+}
+
+export async function fetchAblationsAndSensitivities(): Promise<AblationsResponse> {
+  const res = await fetch(`${API_BASE}/benchmarks/ablations`);
+  if (!res.ok) throw new Error(`Failed to fetch ablations: ${res.statusText}`);
+  return res.json();
+}
+
+export function getBenchmarkCsvDownloadUrl(): string {
+  return `${API_BASE}/benchmarks/download/csv`;
+}

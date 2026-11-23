@@ -23,6 +23,7 @@ from backend.app.api.routes import (
     optimization_router,
     scenarios_router,
     simulation_router,
+    benchmark_router,
     tariff_router,
 )
 
@@ -74,6 +75,7 @@ app.include_router(tariff_router, prefix=api_v1_prefix)
 app.include_router(incentive_router, prefix=api_v1_prefix)
 app.include_router(optimization_router, prefix=api_v1_prefix)
 app.include_router(simulation_router, prefix=api_v1_prefix)
+app.include_router(benchmark_router, prefix=api_v1_prefix)
 
 
 @app.get("/", tags=["Root"])

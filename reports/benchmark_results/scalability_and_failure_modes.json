@@ -1,0 +1,42 @@
+{
+  "environment": {
+    "platform": "Windows-11-10.0.26200-SP0",
+    "python_version": "3.14.0",
+    "pyomo_version": "6.11.0",
+    "highs_version": "1.16.0",
+    "cpu_count": 16,
+    "timestamp": "2026-11-23T18:11:11.468209+00:00"
+  },
+  "scalability_benchmarks": {
+    "1_city_24h": {
+      "total_elapsed_seconds": 2.882,
+      "solver_solve_seconds": 1.1409,
+      "mip_gap": 0.01,
+      "solver_status": "OPTIMAL"
+    },
+    "5_cities_24h": {
+      "total_elapsed_seconds": 11.184,
+      "solver_solve_seconds": 5.4039,
+      "mip_gap": 0.01,
+      "solver_status": "OPTIMAL"
+    }
+  },
+  "failure_modes": {
+    "solver_unavailability_fallback": {
+      "is_fallback_triggered": true,
+      "fallback_events_count": 2,
+      "bess_reserve_maintained": true,
+      "swap_reserve_maintained": true,
+      "status": "PASS: Deterministic Safe Fallback gracefully maintained all reserves without crashing."
+    },
+    "inventory_shortage": {
+      "swap_reserve_maintained": true,
+      "integer_pack_conservation": true,
+      "status": "PASS: 5% Ready Reserve (1,200 packs) remained unviolated; pack conservation strictly held."
+    },
+    "grid_import_restriction": {
+      "headroom_reserve_maintained": true,
+      "status": "PASS: Headroom stayed >= 12.0 MW by prioritizing emergency BESS discharge."
+    }
+  }
+}

@@ -840,3 +840,69 @@ export interface MPCStatusResponse {
   invariants_enforced: string[];
   timestamp: string;
 }
+
+// Phase 7 Benchmark & Registry Types
+export interface MetricDefinition {
+  key: string;
+  name: string;
+  unit: string;
+  formula: string;
+  numerator: string;
+  denominator: string;
+  boundary: string;
+  target_value?: number | null;
+  interpretation: string;
+}
+
+export interface MetricRegistryResponse {
+  metrics: MetricDefinition[];
+  policies: string[];
+  ebitda_missing_data: string[];
+  provenance: string;
+}
+
+export interface MetricStat {
+  mean: number;
+  std: number;
+  median: number;
+  p10: number;
+  p90: number;
+}
+
+export interface PolicyAggregateStats {
+  count: number;
+  service_reliability_pct?: MetricStat;
+  fast_charge_fill_rate_pct?: MetricStat;
+  swap_pack_fill_rate_pct?: MetricStat;
+  energy_loss_pct?: MetricStat;
+  renewable_share_pct?: MetricStat;
+  total_procurement_cost_inr?: MetricStat;
+  retail_tariff_revenue_inr?: MetricStat;
+  flexibility_incentives_inr?: MetricStat;
+  battery_degradation_expense_inr?: MetricStat;
+  gross_procurement_margin_inr?: MetricStat;
+  net_operating_contribution_inr?: MetricStat;
+  mean_solve_time_seconds?: MetricStat;
+}
+
+export interface PairedDeltaStats {
+  mean_cost_saving_inr: number;
+  mean_cost_saving_pct: number;
+  mean_reliability_uplift_pct: number;
+  mean_loss_reduction_pct?: number;
+  n_pairs: number;
+}
+
+export interface BenchmarkSummaryResponse {
+  timestamp: string;
+  total_runs: number;
+  policy_summary: Record<string, PolicyAggregateStats>;
+  paired_deltas: Record<string, PairedDeltaStats>;
+}
+
+export interface AblationsResponse {
+  ablations: Record<string, any>;
+  sensitivities: Record<string, any>;
+  ebitda_status: string;
+  provenance: string;
+}
